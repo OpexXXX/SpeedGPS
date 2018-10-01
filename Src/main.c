@@ -638,6 +638,7 @@ void GPSHadlerFunc(void const * argument)
 		dysplayBufferStruct SymBuffer;
 		xStatus=xQueueReceive(GPSHandlerHandle, &gpsData, 1);
 		if (xStatus == pdPASS){
+			//Проверочный коммит
 			//Сдвигаем буфер с замерами
 			for (uint8_t var = 0;  var < 4; ++var) {
 				messageArray[var]=messageArray[var+1];
