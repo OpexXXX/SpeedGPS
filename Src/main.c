@@ -635,7 +635,7 @@ void GPSHadlerFunc(void const * argument)
 
 	for(;;)
 	{
-		dysplayBufferStruct SymBuffer;
+		dysplayBufferStruct SymBuffer;//
 		xStatus=xQueueReceive(GPSHandlerHandle, &gpsData, 1);
 		if (xStatus == pdPASS ){
 			//Проверочный коммит
