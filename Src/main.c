@@ -638,7 +638,6 @@ void GPSHadlerFunc(void const * argument)
 		dysplayBufferStruct SymBuffer;//
 		xStatus=xQueueReceive(GPSHandlerHandle, &gpsData, 1);
 		if (xStatus == pdPASS ){
-			//Проверочный коммит
 			//Сдвигаем буфер с замерами
 			for (uint8_t var = 0;  var < 4; ++var) {
 				messageArray[var]=messageArray[var+1];
@@ -671,7 +670,7 @@ void GPSHadlerFunc(void const * argument)
 
 			if(flagRes==10){VehicleStatus=VEHICLE_STOPPED;} //Если все пять замеров нулевые, считаем , что автомобиль остановлен и готов для старта
 
-			if(VehicleStatus==VEHICLE_STOPPED){ // если автомобиль остановлен и готов для старта
+			if (VehicleStatus == VEHICLE_STOPPED) { // если автомобиль остановлен и готов для старта
 				//обнулить промежуточные итоги
 				SymBuffer.LedState &= ~0b10000000; // поджигаем красный индикатор
 				MeasurmentStatus = MES_STOPPED; // статус измерения "остановлен"
@@ -684,6 +683,7 @@ void GPSHadlerFunc(void const * argument)
 				VehicleStatus = VEHICLE_ACCELERATE; // статус автомобиля "Ускоряется"
 				SymBuffer.LedState|= 0b10000000; // тушим красный диод
 				MeasurmentStatus = MES_ACCELERATE;  // статус измерения "Ускоряется"
+
 			}
 			//Если находимся в режиме замера ускорения
 			if(MeasurmentStatus == MES_ACCELERATE)
