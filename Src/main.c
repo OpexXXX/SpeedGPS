@@ -1,4 +1,3 @@
-
 /**
  ******************************************************************************
  * @file           : main.c
@@ -57,6 +56,7 @@
 #include  "buzzerDriver.h"
 #include  "gps.h"
 #include "ParameterMeter.h"
+#include "measurment.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -122,8 +122,7 @@ uint8_t receiveBuffer[32];
  *
  * @retval None
  */
-int main(void)
-{
+int main(void) {
 	/* USER CODE BEGIN 1 */
 
 	/* USER CODE END 1 */
@@ -211,7 +210,8 @@ int main(void)
 
 	/* definition and creation of PressedKeyQueue02 */
 	osMessageQDef(PressedKeyQueue02, 5, pressedKeyStruct);
-	PressedKeyQueue02Handle = osMessageCreate(osMessageQ(PressedKeyQueue02), NULL);
+	PressedKeyQueue02Handle = osMessageCreate(osMessageQ(PressedKeyQueue02),
+			NULL);
 
 	/* definition and creation of BuzzerQueue03 */
 	osMessageQDef(BuzzerQueue03, 5, buzzerStruct);
@@ -226,17 +226,17 @@ int main(void)
 	gpsSppedCoordsHandle = osMessageCreate(osMessageQ(gpsSppedCoords), NULL);
 
 	/* definition and creation of GPSHandler */
-	osMessageQDef( GPSHandler, 10, gpsSpeedMessegeStruct);
-	GPSHandlerHandle = osMessageCreate(osMessageQ( GPSHandler), NULL);
+	osMessageQDef(GPSHandler, 10, gpsSpeedMessegeStruct);
+	GPSHandlerHandle = osMessageCreate(osMessageQ(GPSHandler), NULL);
 
 	/* definition and creation of DyspalyQueueAfter */
 	osMessageQDef(DyspalyQueueAfter, 8, dysplayBufferStruct);
-	DyspalyQueueAfterHandle = osMessageCreate(osMessageQ(DyspalyQueueAfter), NULL);
+	DyspalyQueueAfterHandle = osMessageCreate(osMessageQ(DyspalyQueueAfter),
+			NULL);
 
 	/* USER CODE BEGIN RTOS_QUEUES */
 	/* add queues, ... */
 	/* USER CODE END RTOS_QUEUES */
-
 
 	/* Start scheduler */
 	osKernelStart();
@@ -245,17 +245,13 @@ int main(void)
 
 	/* Infinite loop */
 	/* USER CODE BEGIN WHILE */
-	NVIC_EnableIRQ (USART2_IRQn);           //разрешить прерывания от USART1
+	NVIC_EnableIRQ(USART2_IRQn);           //разрешить прерывания от USART1
 
+	USART2->CR1 |= USART_CR1_TCIE;         //прерывание по окончанию передачи
+	USART2->CR1 |= USART_CR1_RXNEIE;       //прерывание по приему данных
+	HAL_UART_Receive_IT(&huart2, receiveBuffer, (uint8_t) 1);
 
-
-	USART2->CR1  |= USART_CR1_TCIE;         //прерывание по окончанию передачи
-	USART2->CR1  |= USART_CR1_RXNEIE;       //прерывание по приему данных
-	HAL_UART_Receive_IT(&huart2, receiveBuffer, (uint8_t)1);
-
-
-	while (1)
-	{
+	while (1) {
 
 		/* USER CODE END WHILE */
 
@@ -270,8 +266,7 @@ int main(void)
  * @brief System Clock Configuration
  * @retval None
  */
-void SystemClock_Config(void)
-{
+void SystemClock_Config(void) {
 
 	RCC_OscInitTypeDef RCC_OscInitStruct;
 	RCC_ClkInitTypeDef RCC_ClkInitStruct;
@@ -286,35 +281,32 @@ void SystemClock_Config(void)
 	RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
 	RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
 	RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL9;
-	if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
-	{
+	if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
 		_Error_Handler(__FILE__, __LINE__);
 	}
 
 	/**Initializes the CPU, AHB and APB busses clocks
 	 */
-	RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
-			|RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
+	RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK
+			| RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
 	RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
 	RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
 	RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
 	RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
-	if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
-	{
+	if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK) {
 		_Error_Handler(__FILE__, __LINE__);
 	}
 
 	PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_ADC;
 	PeriphClkInit.AdcClockSelection = RCC_ADCPCLK2_DIV6;
-	if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
-	{
+	if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK) {
 		_Error_Handler(__FILE__, __LINE__);
 	}
 
 	/**Configure the Systick interrupt time
 	 */
-	HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/1000);
+	HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq() / 1000);
 
 	/**Configure the Systick
 	 */
@@ -325,8 +317,7 @@ void SystemClock_Config(void)
 }
 
 /* ADC1 init function */
-static void MX_ADC1_Init(void)
-{
+static void MX_ADC1_Init(void) {
 
 	ADC_ChannelConfTypeDef sConfig;
 
@@ -339,8 +330,7 @@ static void MX_ADC1_Init(void)
 	hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
 	hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
 	hadc1.Init.NbrOfConversion = 1;
-	if (HAL_ADC_Init(&hadc1) != HAL_OK)
-	{
+	if (HAL_ADC_Init(&hadc1) != HAL_OK) {
 		_Error_Handler(__FILE__, __LINE__);
 	}
 
@@ -349,16 +339,14 @@ static void MX_ADC1_Init(void)
 	sConfig.Channel = ADC_CHANNEL_0;
 	sConfig.Rank = ADC_REGULAR_RANK_1;
 	sConfig.SamplingTime = ADC_SAMPLETIME_1CYCLE_5;
-	if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
-	{
+	if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK) {
 		_Error_Handler(__FILE__, __LINE__);
 	}
 
 }
 
 /* SPI1 init function */
-static void MX_SPI1_Init(void)
-{
+static void MX_SPI1_Init(void) {
 
 	/* SPI1 parameter configuration*/
 	hspi1.Instance = SPI1;
@@ -373,16 +361,14 @@ static void MX_SPI1_Init(void)
 	hspi1.Init.TIMode = SPI_TIMODE_DISABLE;
 	hspi1.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
 	hspi1.Init.CRCPolynomial = 10;
-	if (HAL_SPI_Init(&hspi1) != HAL_OK)
-	{
+	if (HAL_SPI_Init(&hspi1) != HAL_OK) {
 		_Error_Handler(__FILE__, __LINE__);
 	}
 
 }
 
 /* TIM1 init function */
-static void MX_TIM1_Init(void)
-{
+static void MX_TIM1_Init(void) {
 
 	TIM_MasterConfigTypeDef sMasterConfig;
 	TIM_IC_InitTypeDef sConfigIC;
@@ -394,15 +380,14 @@ static void MX_TIM1_Init(void)
 	htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
 	htim1.Init.RepetitionCounter = 0;
 	htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
-	if (HAL_TIM_IC_Init(&htim1) != HAL_OK)
-	{
+	if (HAL_TIM_IC_Init(&htim1) != HAL_OK) {
 		_Error_Handler(__FILE__, __LINE__);
 	}
 
 	sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
 	sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
-	if (HAL_TIMEx_MasterConfigSynchronization(&htim1, &sMasterConfig) != HAL_OK)
-	{
+	if (HAL_TIMEx_MasterConfigSynchronization(&htim1, &sMasterConfig)
+			!= HAL_OK) {
 		_Error_Handler(__FILE__, __LINE__);
 	}
 
@@ -410,22 +395,19 @@ static void MX_TIM1_Init(void)
 	sConfigIC.ICSelection = TIM_ICSELECTION_DIRECTTI;
 	sConfigIC.ICPrescaler = TIM_ICPSC_DIV1;
 	sConfigIC.ICFilter = 0;
-	if (HAL_TIM_IC_ConfigChannel(&htim1, &sConfigIC, TIM_CHANNEL_1) != HAL_OK)
-	{
+	if (HAL_TIM_IC_ConfigChannel(&htim1, &sConfigIC, TIM_CHANNEL_1) != HAL_OK) {
 		_Error_Handler(__FILE__, __LINE__);
 	}
 
 	sConfigIC.ICPolarity = TIM_INPUTCHANNELPOLARITY_FALLING;
-	if (HAL_TIM_IC_ConfigChannel(&htim1, &sConfigIC, TIM_CHANNEL_4) != HAL_OK)
-	{
+	if (HAL_TIM_IC_ConfigChannel(&htim1, &sConfigIC, TIM_CHANNEL_4) != HAL_OK) {
 		_Error_Handler(__FILE__, __LINE__);
 	}
 
 }
 
 /* USART2 init function */
-static void MX_USART2_UART_Init(void)
-{
+static void MX_USART2_UART_Init(void) {
 
 	huart2.Instance = USART2;
 	huart2.Init.BaudRate = 115200;
@@ -435,8 +417,7 @@ static void MX_USART2_UART_Init(void)
 	huart2.Init.Mode = UART_MODE_TX_RX;
 	huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
 	huart2.Init.OverSampling = UART_OVERSAMPLING_16;
-	if (HAL_UART_Init(&huart2) != HAL_OK)
-	{
+	if (HAL_UART_Init(&huart2) != HAL_OK) {
 		_Error_Handler(__FILE__, __LINE__);
 	}
 
@@ -445,10 +426,10 @@ static void MX_USART2_UART_Init(void)
 /** 
  * Enable DMA controller clock
  */
-static void MX_DMA_Init(void) 
-{
+static void MX_DMA_Init(void) {
 	/* DMA controller clock enable */
-	__HAL_RCC_DMA1_CLK_ENABLE();
+	__HAL_RCC_DMA1_CLK_ENABLE()
+	;
 
 	/* DMA interrupt init */
 	/* DMA1_Channel3_IRQn interrupt configuration */
@@ -467,15 +448,17 @@ static void MX_DMA_Init(void)
  * EVENT_OUT
  * EXTI
  */
-static void MX_GPIO_Init(void)
-{
+static void MX_GPIO_Init(void) {
 
 	GPIO_InitTypeDef GPIO_InitStruct;
 
 	/* GPIO Ports Clock Enable */
-	__HAL_RCC_GPIOD_CLK_ENABLE();
-	__HAL_RCC_GPIOA_CLK_ENABLE();
-	__HAL_RCC_GPIOB_CLK_ENABLE();
+	__HAL_RCC_GPIOD_CLK_ENABLE()
+	;
+	__HAL_RCC_GPIOA_CLK_ENABLE()
+	;
+	__HAL_RCC_GPIOB_CLK_ENABLE()
+	;
 
 	/*Configure GPIO pin Output Level */
 	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_RESET);
@@ -493,22 +476,14 @@ static void MX_GPIO_Init(void)
 /* USER CODE END 4 */
 
 /* StartDefaultTask function */
-void StartDefaultTask(void const * argument)
-{
-
+void StartDefaultTask(void const * argument) {
 	/* USER CODE BEGIN 5 */
 	portBASE_TYPE xStatus;
-	dysplayBufferStruct  SymbolBuffer;
+	dysplayBufferStruct SymbolBuffer;
 	uint16_t i = 0;
-	HAL_UART_Receive_IT(&huart2, receiveBuffer, (uint8_t)1);
+	HAL_UART_Receive_IT(&huart2, receiveBuffer, (uint8_t) 1);
 	/* Infinite loop */
-	for(;;)
-	{
-
-
-
-
-
+	for (;;) {
 		//	getLedBufferFromNumber(i, &SymbolBuffer);
 		//xStatus = xQueueSendToBack(DysplayQueue01Handle,&SymbolBuffer,5);
 		//	i++;
@@ -518,20 +493,17 @@ void StartDefaultTask(void const * argument)
 }
 
 /* StartDynamicLedDrive function */
-void StartDynamicLedDrive(void const * argument)
-{
+void StartDynamicLedDrive(void const * argument) {
 	/* USER CODE BEGIN StartDynamicLedDrive */
 
 	//Обработка динамической индикации
 	dysplayBufferStruct SymbolBuffer;
 	/* Infinite loop */
-	for(;;)
-	{
+	for (;;) {
 		xQueueReceive(DysplayQueue01Handle, &SymbolBuffer, 0);
 		uint8_t aTxBuffer[2];
 		aTxBuffer[1] = SymbolBuffer.firstReg;
 		aTxBuffer[0] = SymbolBuffer.LedState;
-
 
 		aTxBuffer[0] &= ~0b00001111;
 		aTxBuffer[0] |= 0b00001000;
@@ -566,53 +538,45 @@ void StartDynamicLedDrive(void const * argument)
 }
 
 /* StartKeybordDriver function */
-void StartKeybordDriver(void const * argument)
-{
+void StartKeybordDriver(void const * argument) {
 	/* USER CODE BEGIN StartKeybordDriver */
 	/* Infinite loop */
-	for(;;)
-	{
+	for (;;) {
 		osDelay(1);
 	}
 	/* USER CODE END StartKeybordDriver */
 }
 
 /* StartBuzzerTask04 function */
-void StartBuzzerTask04(void const * argument)
-{
+void StartBuzzerTask04(void const * argument) {
 	/* USER CODE BEGIN StartBuzzerTask04 */
 	/* Infinite loop */
-	for(;;)
-	{
+	for (;;) {
 		osDelay(1);
 	}
 	/* USER CODE END StartBuzzerTask04 */
 }
 
 /* UsartStartTask05 function */
-void UsartStartTask05(void const * argument)
-{
+void UsartStartTask05(void const * argument) {
 	/* USER CODE BEGIN UsartStartTask05 */
 	/* Infinite loop */
-	for(;;)
-	{
+	for (;;) {
 		osDelay(1);
 	}
 	/* USER CODE END UsartStartTask05 */
 }
 
 /* GpsTask function */
-void GpsTask(void const * argument)
-{
+void GpsTask(void const * argument) {
 	/* USER CODE BEGIN GpsTask */
 	//ГПС парсер
 	portBASE_TYPE xStatus;
 	uint8_t gpsUartData;
 	/* Infinite loop */
-	for(;;)
-	{
-		xStatus=xQueueReceive(gpsSppedCoordsHandle, &gpsUartData, 1);
-		if (xStatus == pdPASS){
+	for (;;) {
+		xStatus = xQueueReceive(gpsSppedCoordsHandle, &gpsUartData, 1);
+		if (xStatus == pdPASS) {
 			uartParserGps(gpsUartData);
 		}
 	}
@@ -620,261 +584,60 @@ void GpsTask(void const * argument)
 }
 
 /* GPSHadlerFunc function */
-void GPSHadlerFunc(void const * argument)
-{
+void GPSHadlerFunc(void const * argument) {
 	/* USER CODE BEGIN GPSHadlerFunc */
 	// Главный обработчик замеров
 	/* Infinite loop */
-	uint8_t VehicleStatus=0;
-	uint8_t MeasurmentStatus=0;
 	portBASE_TYPE xStatus;
-	gpsSpeedMessegeStruct messageArray[5];
 	gpsSpeedMessegeStruct gpsData;
-	gpsSpeedMessegeStruct StartMeas;
 	gpsSpeedInderStruct IntermediateRresults[30];
-
-	for(;;)
-	{
-		dysplayBufferStruct SymBuffer;//
-		xStatus=xQueueReceive(GPSHandlerHandle, &gpsData, 1);
-		if (xStatus == pdPASS ){
-			//Сдвигаем буфер с замерами
-			for (uint8_t var = 0;  var < 4; ++var) {
-				messageArray[var]=messageArray[var+1];
-			}
-			// Записываем текущий замер
-			messageArray[4]=gpsData;
-
-			if(gpsData.CourseTrue == 0) //Если курса нет
-			{
+	measurmentStruct zamer;
+	for (;;) {
+		dysplayBufferStruct SymBuffer;		//
+		xStatus = xQueueReceive(GPSHandlerHandle, &gpsData, 1);
+		if (xStatus == pdPASS) { //Если поступил пакет от gps модуля
+			//TODO Описать структурой "Текущий замер"
+			processPackage(&zamer, gpsData);
+			if (zamer.gpsData.CourseTrue == 0) //Если курса нет
+					{
 				SymBuffer.LedState &= ~0b00010000; //Поджигаем зеленый идикатор
-				getLedBufferFromNumberSpeed(0,&SymBuffer);
+				getLedBufferFromNumberSpeed(0, &SymBuffer);
 				SymBuffer.ShowDelay = 0;
-				xQueueSendToBack(DyspalyQueueAfterHandle,&SymBuffer,0);}
+				xQueueSendToBack(DyspalyQueueAfterHandle, &SymBuffer, 0);
+			} // Отправляем на дисплей 0км/ч
 			else   //Если курс есть
 			{
-				SymBuffer.LedState|= 0b00010000; //Тушим зеленый индикатор
-				uint32_t AvgSpeed = (messageArray[0].Speed+ messageArray[1].Speed+ messageArray[2].Speed+ messageArray[3].Speed+ messageArray[4].Speed)/5; // Берем среднюю скорость пяти замеров
-				getLedBufferFromNumberSpeed(AvgSpeed,&SymBuffer);
+				SymBuffer.LedState |= 0b00010000; //Тушим зеленый индикатор
+				getLedBufferFromNumberSpeed(zamer.AvgSpeed, &SymBuffer); //Выводим на экран среднюю скорость
 				SymBuffer.ShowDelay = 0;
-				xQueueSendToBack(DyspalyQueueAfterHandle,&SymBuffer,0); // отображаем на экране без задержки
+				xQueueSendToBack(DyspalyQueueAfterHandle, &SymBuffer, 0); // отображаем на экране без задержки
 			}
-
-			//Проверка на Остановку автомобиля, обнуление замеров, если 5 замеров отсутствует курс и скорость ниже 1 км/ч
-			uint8_t flagRes =0;
-			//прогоняем все пять замеров
-			for (int var = 0; var < 5; ++var) {
-				flagRes+=(messageArray[var].CourseTrue == 0); //проверяем отсутствие курса
-				flagRes+=(messageArray[var].Speed <1000);// проверяем скорость ниже 1 км/ч
-			}
-
-			if(flagRes==10){VehicleStatus=VEHICLE_STOPPED;} //Если все пять замеров нулевые, считаем , что автомобиль остановлен и готов для старта
-
-			if (VehicleStatus == VEHICLE_STOPPED) { // если автомобиль остановлен и готов для старта
-				//обнулить промежуточные итоги
+			if (zamer.VehicleStatus == VEHICLE_STOPPED) { // если автомобиль остановлен и готов для старта
 				SymBuffer.LedState &= ~0b10000000; // поджигаем красный индикатор
-				MeasurmentStatus = MES_STOPPED; // статус измерения "остановлен"
-			}
-			//Проверка на начала замера с места
-				//Если в текущем пакете ГПС появился курс, а в предыдущем он отсутствовал  и средняя скорость предыдущих двух замеров меньше 1 км/ч
-			if(gpsData.CourseTrue!=0 && (messageArray[3].CourseTrue==0) && (((messageArray[3].Speed+messageArray[2].Speed)/2)<1000))
-			{
-				StartMeas =messageArray[3]; // Записываем точку старта
-				VehicleStatus = VEHICLE_ACCELERATE; // статус автомобиля "Ускоряется"
-				SymBuffer.LedState|= 0b10000000; // тушим красный диод
-				MeasurmentStatus = MES_ACCELERATE;  // статус измерения "Ускоряется"
-
 			}
 			//Если находимся в режиме замера ускорения
-			if(MeasurmentStatus == MES_ACCELERATE)
-			{
-				/*//при переходе порога 5 км/ч
-				if(gpsData.Speed>5000 &&  messageArray[3].Speed<5000)
-				{
-					uint32_t resultTime = getDifTime(StartMeas.Time, messageArray[3].Time);
-					float gpsDataSpeedF=gpsData.Speed;
-					float messageArraySpeedF=messageArray[3].Speed;
-					float koef = 1- ((gpsDataSpeedF-5000)/(gpsDataSpeedF-messageArraySpeedF));
-					uint32_t difTime =( getDifTime(messageArray[3].Time, gpsData.Time))*koef;
-					resultTime+=difTime;
-
-					getLedBufferFromNumberTime(resultTime,&SymBuffer);
-					SymBuffer.ShowDelay = 500;
-					xQueueSendToBack(DyspalyQueueAfterHandle,&SymBuffer,5);
-
-					//отобразить результат 5 кмч
-				}*/
-
-				if(gpsData.Speed>30000 &&  messageArray[3].Speed<30000)
-				{
-
-					uint32_t resultTime = getDifTime(StartMeas.Time, messageArray[3].Time);
-					float gpsDataSpeedF=gpsData.Speed;
-					float messageArraySpeedF=messageArray[3].Speed;
-					float koef = 1- ((gpsDataSpeedF-30000)/(gpsDataSpeedF-messageArraySpeedF));
-					uint32_t difTime =( getDifTime(messageArray[3].Time, gpsData.Time))*koef;
-					resultTime+=difTime;
-					getLedBufferFromNumberTime(resultTime,&SymBuffer);
-					SymBuffer.ShowDelay = 1000;
-					xQueueSendToBack(DyspalyQueueAfterHandle,&SymBuffer,5);
-
-					//отобразить результат 30 кмч
-
-				}
-				if(gpsData.Speed>60000 &&  messageArray[3].Speed<60000)
-				{
-					uint32_t resultTime = getDifTime(StartMeas.Time, messageArray[3].Time);
-					float gpsDataSpeedF=gpsData.Speed;
-					float messageArraySpeedF=messageArray[3].Speed;
-					float koef = 1- ((gpsDataSpeedF-60000)/(gpsDataSpeedF-messageArraySpeedF));
-					uint32_t difTime =( getDifTime(messageArray[3].Time, gpsData.Time))*koef;
-					resultTime+=difTime;
-					getLedBufferFromNumberTime(resultTime,&SymBuffer);
-					SymBuffer.ShowDelay = 2300;
-					xQueueSendToBack(DyspalyQueueAfterHandle,&SymBuffer,5);
-
-					//отобразить результат 60 кмч
-
-				}
-				if(gpsData.Speed>100000 &&  messageArray[3].Speed<100000)
-				{
-					uint32_t resultTime = getDifTime(StartMeas.Time, messageArray[3].Time);
-					float gpsDataSpeedF=gpsData.Speed;
-					float messageArraySpeedF=messageArray[3].Speed;
-					float koef = 1- ((gpsDataSpeedF-100000)/(gpsDataSpeedF-messageArraySpeedF));
-					uint32_t difTime =( getDifTime(messageArray[3].Time, gpsData.Time))*koef;
-					resultTime+=difTime;
-					getLedBufferFromNumberTime(resultTime,&SymBuffer);
-					//StartMeas.Time = StartMeas.Time+resultTime;
-					SymBuffer.ShowDelay = 4000;
-					xQueueSendToBack(DyspalyQueueAfterHandle,&SymBuffer,5);
-
-					//отобразить результат  100кмч
-				}
-				if(gpsData.Speed>150000 &&  messageArray[3].Speed<150000)
-				{
-					uint32_t resultTime = getDifTime(StartMeas.Time, messageArray[3].Time);
-					float gpsDataSpeedF=gpsData.Speed;
-					float messageArraySpeedF=messageArray[3].Speed;
-					float koef = 1- ((gpsDataSpeedF-150000)/(gpsDataSpeedF-messageArraySpeedF));
-					uint32_t difTime =( getDifTime(messageArray[3].Time, gpsData.Time))*koef;
-					resultTime+=difTime;
-					getLedBufferFromNumberTime(resultTime,&SymBuffer);
-					SymBuffer.ShowDelay = 5000;
-					xQueueSendToBack(DyspalyQueueAfterHandle,&SymBuffer,5);
-					//отобразить результат 150 кмч
-				}
-				if(gpsData.Speed>200000 &&  messageArray[3].Speed<200000)
-				{
-					uint32_t resultTime = getDifTime(StartMeas.Time, messageArray[3].Time);
-					float gpsDataSpeedF=gpsData.Speed;
-					float messageArraySpeedF=messageArray[3].Speed;
-					float koef = 1- ((gpsDataSpeedF-200000)/(gpsDataSpeedF-messageArraySpeedF));
-					uint32_t difTime =( getDifTime(messageArray[3].Time, gpsData.Time))*koef;
-					resultTime+=difTime;
-					getLedBufferFromNumberTime(resultTime,&SymBuffer);
-					SymBuffer.ShowDelay = 9000;
-					xQueueSendToBack(DyspalyQueueAfterHandle,&SymBuffer,5);
-					//отобразить результат 200 кмч
-				}
-				/*for (int var = 0; var < 30; ++var)
-				{
-					//Если перешагнули порог указанный в IntermediateRresults
-					if(gpsData.Speed>IntermediateMeasurementOfSpeed[var] &&  messageArray[3].Speed<IntermediateMeasurementOfSpeed[var])
-					{
-						//Копируем Результат
-						IntermediateRresults[var].Speed = gpsData.Speed;
-						IntermediateRresults[var].Time = gpsData.Time;
-						IntermediateRresults[var].CourseTrue = gpsData.CourseTrue;
-						memcpy(IntermediateRresults[var].EW, gpsData.EW, sizeof(gpsData.EW));
-						memcpy(IntermediateRresults[var].NS, gpsData.NS, sizeof(gpsData.NS));
-						IntermediateRresults[var].SLatitude = gpsData.SLatitude;
-						IntermediateRresults[var].SLongitude = gpsData.SLongitude;
-						IntermediateRresults[var].StatusMeas = MES_FIXED;
-						uint32_t resultTime =	gpsData.Time - StartMeas.Time;
-						dysplayBufferStruct SymbolBuffer;
-						switch (var) {
-						case 1:
-												getLedBufferFromNumberSpeed(resultTime,&SymbolBuffer);
-												SymbolBuffer.ShowDelay = 1000;
-												xQueueSendToBack(DyspalyQueueAfterHandle,&SymbolBuffer,5);
-
-												//отобразить результат 5 кмч
-												break;
-						case 3:
-							getLedBufferFromNumberSpeed(resultTime,&SymbolBuffer);
-							SymbolBuffer.ShowDelay = 1000;
-							xQueueSendToBack(DyspalyQueueAfterHandle,&SymbolBuffer,5);
-
-							//отобразить результат 30 кмч
-							break;
-						case 6:
-							getLedBufferFromNumberSpeed(resultTime,&SymbolBuffer);
-							SymbolBuffer.ShowDelay = 1000;
-							xQueueSendToBack(DyspalyQueueAfterHandle,&SymbolBuffer,5);
-							//отобразить результат 30 кмч
-							break;
-
-						case 10:
-							getLedBufferFromNumberSpeed(resultTime,&SymbolBuffer);
-							SymbolBuffer.ShowDelay = 1000;
-							xQueueSendToBack(DyspalyQueueAfterHandle,&SymbolBuffer,5);
-							//отобразить результат  кмч
-							break;
-						case 14:
-							getLedBufferFromNumberSpeed(resultTime,&SymbolBuffer);
-							SymbolBuffer.ShowDelay = 1000;
-							xQueueSendToBack(DyspalyQueueAfterHandle,&SymbolBuffer,5);
-							//отобразить результат 140 кмч
-							break;
-
-						default:
-							break;
-						}
-
-
-					}*/
-
+			if (zamer.MeasurmentStatus == MES_ACCELERATE) {
+				SymBuffer.LedState |= 0b10000000; // тушим красный диод
+				checkSpeedThrough(&zamer);
 			}
 
-
-			/*
-				SymbolBuffer.LedState &= ~0b10000000;
-			else
-				SymbolBuffer.LedState	|= 0b10000000;
-			if(gpsData.Status[0]=='A')
-				SymbolBuffer.LedState &= ~0b01000000;
-			else
-				SymbolBuffer.LedState	|= 0b01000000;
-			if(gpsData.Speed[0]!='\0')
-			{
-				uint32_t TempSpeed= AsciiRemoveDotToInt(gpsData.Speed);
-				currentSpeed= TempSpeed*1.852;
-				TempSpeed = currentSpeed;
-				getLedBufferFromNumberSpeed(TempSpeed, &SymbolBuffer);
-				xStatus = xQueueSendToBack(DysplayQueue01Handle,&SymbolBuffer,5);*/
 		}
-
 	}
 }
 /* USER CODE END GPSHadlerFunc */
 
-
 /* DysplayTaskFunc function */
-void DysplayTaskFunc(void const * argument)
-{
+void DysplayTaskFunc(void const * argument) {
 	/* USER CODE BEGIN DysplayTaskFunc */
 	dysplayBufferStruct SymbolBuffer;
 	portBASE_TYPE xStatus;
 	/* Infinite loop */
-	for(;;)
-	{
-
-		xStatus= xQueueReceive(DyspalyQueueAfterHandle, &SymbolBuffer, 0);
-		if(xStatus==pdPASS)
-		{
-			xStatus = xQueueSendToBack(DysplayQueue01Handle,&SymbolBuffer,5);
-			if(SymbolBuffer.ShowDelay!=0) osDelay(SymbolBuffer.ShowDelay);
+	for (;;) {
+		xStatus = xQueueReceive(DyspalyQueueAfterHandle, &SymbolBuffer, 0);
+		if (xStatus == pdPASS) {
+			xStatus = xQueueSendToBack(DysplayQueue01Handle, &SymbolBuffer, 5);
+			if (SymbolBuffer.ShowDelay != 0)
+				osDelay(SymbolBuffer.ShowDelay);
 		}
 	}
 	/* USER CODE END DysplayTaskFunc */
@@ -886,12 +649,10 @@ void DysplayTaskFunc(void const * argument)
  * @param  line: The line in file as a number.
  * @retval None
  */
-void _Error_Handler(char *file, int line)
-{
+void _Error_Handler(char *file, int line) {
 	/* USER CODE BEGIN Error_Handler_Debug */
 	/* User can add his own implementation to report the HAL error return state */
-	while(1)
-	{
+	while (1) {
 	}
 	/* USER CODE END Error_Handler_Debug */
 }
@@ -905,10 +666,10 @@ void _Error_Handler(char *file, int line)
  * @retval None
  */
 void assert_failed(uint8_t* file, uint32_t line)
-{ 
+{
 	/* USER CODE BEGIN 6 */
 	/* User can add his own implementation to report the file name and line number,
-     tex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+	 tex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
 	/* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */

@@ -113,9 +113,7 @@ void uartParserGps(unsigned char data)
 	switch (Parser(data)) {
 		case GPS_NRMC:
 			if(Status[0]='A'){
-							//gpsSpeedMessegeStruct gpsStruct ;
 							gpsSpeedMessegeStruct gpsUInt;
-			     			//memcpy(gpsStruct.Time, Time, sizeof(Time));
 							gpsUInt.Time = AsciiRemoveDotToInt(&Time)*10;
 							float tempSpeed = AsciiRemoveDotToInt(&Speed);
 							tempSpeed = tempSpeed*1.852;
@@ -125,7 +123,6 @@ void uartParserGps(unsigned char data)
 							memcpy(gpsUInt.EW, EW, sizeof(EW));
 							gpsUInt.SLongitude =  AsciiRemoveDotToInt(&SLongitude);
 							gpsUInt.CourseTrue =  AsciiRemoveDotToInt(&CourseTrue);
-						//	memcpy(gpsStruct.CourseTrue, CourseTrue, sizeof(CourseTrue));
 							xStatus = xQueueSendToBack(GPSHandlerHandle,&gpsUInt,0);
 			}
 			break;
