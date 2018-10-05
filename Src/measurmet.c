@@ -95,7 +95,7 @@ void checkSpeedThrough(measurmentStruct *this) {
 						< IntermediateMeasurementOfSpeed[i]) {
 			uint16_t resTime = getResultTimeForSpeed(
 					IntermediateMeasurementOfSpeed[i], this);
-			//что то делаем
+			//TODO что то делаем
 		}
 	}
 }

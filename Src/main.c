@@ -618,7 +618,7 @@ void GPSHadlerFunc(void const * argument) {
 			//Если находимся в режиме замера ускорения
 			if (zamer.MeasurmentStatus == MES_ACCELERATE) {
 				SymBuffer.LedState |= 0b10000000; // тушим красный диод
-				checkSpeedThrough(&zamer);
+				checkSpeedThrough(&zamer); //TODO
 			}
 
 		}
