@@ -33,6 +33,7 @@ typedef enum
 typedef struct  {
 	uint32_t Time; //время
 	uint32_t SLatitude;  //Латитуда
+	uint32_t Altim;  //Высота
 	char NS[3];                         //
 	uint32_t SLongitude;         //Лонгитуда
 	char EW[3];                         //
@@ -51,6 +52,7 @@ typedef struct  {
 			gpsSpeedMessegeStruct messageArray[5];
 			gpsSpeedMessegeStruct gpsData;
 			gpsSpeedMessegeStruct StartMeas;
+			gpsSpeedMessegeStruct StartBreakMeas;
 			gpsSpeedInderStruct IntermediateRresults[30];
 			uint32_t AvgSpeed;
 	} measurmentStruct;   //Структура для работы с замером

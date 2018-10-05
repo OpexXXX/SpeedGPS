@@ -139,7 +139,7 @@ uint32_t getDifTime(uint32_t startTime, uint32_t stopTime )
 	int64_t hour=0;
 	int64_t minute=0;
 	int64_t seconds = 0;
-
+//150012300
 	int64_t difHour= (stopTime /10000000)-(startTime /10000000);
 
 	int64_t difMinute =  (stopTime/100000)%100+difHour*60 -(startTime/100000)%100 ;
