@@ -70,9 +70,9 @@ uint32_t checkForStartBreakMeas(measurmentStruct *this) {
 		this->StartBreakMeas = this->messageArray[3];
 
 		uint32_t startTime = getResultTimeForSpeed(
-				IntermediateMeasurementOfSpeed[i], this);
+				100000, this);
 		//TODO что то делаем
-		return resTime;
+		return startTime;
 	}
 }
 

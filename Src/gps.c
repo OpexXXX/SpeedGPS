@@ -29,8 +29,8 @@ char *const GGA[]={UNUSED,UNUSED,UNUSED,UNUSED,UNUSED,UNUSED,SatCount,UNUSED,Alt
 char *const GSV[]={UNUSED,UNUSED,ViewSat,UNUSED,UNUSED,UNUSED,UNUSED,UNUSED,UNUSED,UNUSED,UNUSED,UNUSED,UNUSED,UNUSED,UNUSED,UNUSED,UNUSED,UNUSED,UNUSED,UNUSED,UNUSED};
 char *const VTG[]={COG,COGstat, UNUSED,UNUSED,Knot,UNUSED,UNUSED,UNUSED,UNUSED,UNUSED};
 unsigned char GLONAS_COUNT=0;
-unsigned char GPS_COUNT=0;
-volatile char DataDone=0;
+unsigned char GPS_COUNT=0 ;
+volatile char DataDone=0 ;
 unsigned char DataValid=0;
 
 extern  osMessageQId GPSHandlerHandle;

@@ -56,8 +56,8 @@ typedef struct  {
 			gpsSpeedInderStruct IntermediateRresults[30];
 			uint32_t AvgSpeed;
 	} measurmentStruct;   //Структура для работы с замером
+	uint32_t checkSpeedThrough(measurmentStruct *this);
 
-	void checkSpeedThrough(measurmentStruct *this);
 	uint32_t getResultTimeForSpeed(uint16_t speed, measurmentStruct *this) ;
 	void processPackage(measurmentStruct *this,gpsSpeedMessegeStruct gpsData);
 
