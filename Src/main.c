@@ -211,7 +211,7 @@ int main(void) {
 	/* definition and creation of PressedKeyQueue02 */
 	osMessageQDef(PressedKeyQueue02, 5, pressedKeyStruct);
 	PressedKeyQueue02Handle = osMessageCreate(osMessageQ(PressedKeyQueue02),
-			NULL);
+	NULL);
 
 	/* definition and creation of BuzzerQueue03 */
 	osMessageQDef(BuzzerQueue03, 5, buzzerStruct);
@@ -232,7 +232,7 @@ int main(void) {
 	/* definition and creation of DyspalyQueueAfter */
 	osMessageQDef(DyspalyQueueAfter, 8, dysplayBufferStruct);
 	DyspalyQueueAfterHandle = osMessageCreate(osMessageQ(DyspalyQueueAfter),
-			NULL);
+	NULL);
 
 	/* USER CODE BEGIN RTOS_QUEUES */
 	/* add queues, ... */
@@ -590,7 +590,6 @@ void GPSHadlerFunc(void const * argument) {
 	/* Infinite loop */
 	portBASE_TYPE xStatus;
 	gpsSpeedMessegeStruct gpsData;
-	gpsSpeedInderStruct IntermediateRresults[30];
 	measurmentStruct zamer;
 	for (;;) {
 		dysplayBufferStruct SymBuffer;		//
@@ -607,10 +606,17 @@ void GPSHadlerFunc(void const * argument) {
 			} // Отправляем на дисплей 0км/ч
 			else   //Если курс есть
 			{
-				SymBuffer.LedState |= 0b00010000; //Тушим зеленый индикатор
-				getLedBufferFromNumberSpeed(zamer.AvgSpeed, &SymBuffer); //Выводим на экран среднюю скорость
-				SymBuffer.ShowDelay = 0;
-				xQueueSendToBack(DyspalyQueueAfterHandle, &SymBuffer, 0); // отображаем на экране без задержки
+				if (zamer.Distance < 30) {
+					SymBuffer.LedState |= 0b00010000; //Тушим зеленый индикатор
+					getLedBufferFromNumberSpeed(zamer.AvgSpeed, &SymBuffer); //Выводим на экран среднюю скорость
+					SymBuffer.ShowDelay = 0;
+					xQueueSendToBack(DyspalyQueueAfterHandle, &SymBuffer, 0); // отображаем на экране без задержки
+				} else {
+					SymBuffer.LedState |= 0b00010000; //Тушим зеленый индикатор
+					getLedBufferFromNumber(zamer.Distance, &SymBuffer); //Выводим на экран среднюю скорость
+					SymBuffer.ShowDelay = 0;
+					xQueueSendToBack(DyspalyQueueAfterHandle, &SymBuffer, 0); // отображаем на экране без задержки
+				}
 			}
 			if (zamer.VehicleStatus == VEHICLE_STOPPED) { // если автомобиль остановлен и готов для старта
 				SymBuffer.LedState &= ~0b10000000; // поджигаем красный индикатор
@@ -618,14 +624,36 @@ void GPSHadlerFunc(void const * argument) {
 			//Если находимся в режиме замера ускорения
 			if (zamer.MeasurmentStatus == MES_ACCELERATE) {
 				SymBuffer.LedState |= 0b10000000; // тушим красный диод
-				checkSpeedThrough(&zamer); //TODO евент замера
+				//TODO евент замера
+				uint32_t speedEvent = checkSpeedThrough(&zamer);
+				uint32_t distEvent = checkPassageDistance(&zamer, 402);
 
+				if (speedEvent != 0) {
+					if (speedEvent == 30000 || speedEvent == 60000
+							|| speedEvent == 100000 || speedEvent == 150000
+							|| speedEvent == 200000) {
+
+						uint32_t resTime = getResultTimeForSpeed(speedEvent,
+								&zamer);
+						getLedBufferFromNumberTime(resTime, &SymBuffer); //Выводим на экран время замера
+						SymBuffer.ShowDelay = speedEvent / 25; //1000
+						xQueueSendToBack(DyspalyQueueAfterHandle, &SymBuffer,
+								0); // отображаем на экране
+					}
+				}
+				if (distEvent != 0) {
+					uint32_t resTime = getResultTimeForDistance(402, &zamer);
+					getLedBufferFromNumberTime(resTime, &SymBuffer); //Выводим на экран время замера
+					SymBuffer.ShowDelay = 10000;
+					xQueueSendToBack(DyspalyQueueAfterHandle, &SymBuffer, 0); // отображаем на экране
+				}
 
 			}
 
 		}
 	}
 }
+
 /* USER CODE END GPSHadlerFunc */
 
 /* DysplayTaskFunc function */

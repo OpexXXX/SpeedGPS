@@ -39,17 +39,17 @@ typedef struct {
 	gpsSpeedMessegeStruct StartBreakMeas; // Посыска с места начала торможения
 	gpsSpeedInderStruct IntermediateRresults[30]; // Массив для записи точек, нахер нужен?
 	uint32_t AvgSpeed; //средняя скорость авто на 5 замеров
+	uint32_t Distance; // Растояние до точки старта
 } measurmentStruct;
 
 //проверяем переход через замеряемые величины скорости на ускорении
 uint32_t checkSpeedThrough(measurmentStruct *this);
 //Старт для замера торможения
-uint32_t checkForStartBreakMeas(measurmentStruct *this)
+uint32_t checkForStartBreakMeas(measurmentStruct *this);
 //Получить дорасчетное время замера ускорения
 uint32_t getResultTimeForSpeed(uint16_t speed, measurmentStruct *this);
 //Обработчик пакетов
 void processPackage(measurmentStruct *this, gpsSpeedMessegeStruct gpsData);
 //Получить растояние между точками
-double getDistance(gpsSpeedMessegeStruct *firstCoor,
-		gpsSpeedMessegeStruct *SecondCoor);
+double getDistance(gpsSpeedMessegeStruct *firstCoor, gpsSpeedMessegeStruct *SecondCoor,uint8_t altitud);
 #endif /* MEASURMENT_H_ */

@@ -10,9 +10,9 @@
 #include <string.h>
 char Time[12] = ""; //время
 char Status[2] = ""; //валидность
-char SLatitude[16] = "";  //Латитуда
+char SLatitude[16] = "";  //Широта
 char NS[3] = "";                          //
-char SLongitude[12] = "";         //Лонгитуда
+char SLongitude[12] = "";         //Долгота
 char EW[3] = "";                          //
 char CourseTrue[10] = "";                 // курс
 char Data[12] = "";                               //Дата
@@ -158,10 +158,10 @@ void uartParserGps(unsigned char data) {
 			float tempSpeed = AsciiRemoveDotToInt(&Speed);
 			tempSpeed = tempSpeed * 1.852;
 			gpsUInt.Speed = tempSpeed;
-			gpsUInt.SLatitude = AsciiRemoveDotToInt(&SLatitude);
+			gpsUInt.SLatitude = stringToFloat(&SLatitude)/100;
 			memcpy(gpsUInt.NS, NS, sizeof(NS));
 			memcpy(gpsUInt.EW, EW, sizeof(EW));
-			gpsUInt.SLongitude = stringToFloat(&SLongitude);
+			gpsUInt.SLongitude = stringToFloat(&SLongitude)/100;
 			gpsUInt.CourseTrue = stringToFloat(&CourseTrue);
 			xStatus = xQueueSendToBack(GPSHandlerHandle, &gpsUInt, 0);
 		}

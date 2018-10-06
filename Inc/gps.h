@@ -27,6 +27,7 @@ typedef struct {
 	float SLatitude;  //Широта
 	char NS[3];                         //Север/Юг
 	float SLongitude;         //Долгота
+	float altitude;
 	char EW[3];                         //Запад/Восток
 	uint32_t CourseTrue;                // курс
 	uint32_t Speed; 	//скорость

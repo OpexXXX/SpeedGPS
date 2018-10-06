@@ -8,17 +8,49 @@
 #include "measurment.h"
 #include <math.h>
 
-uint32_t IntermediateMeasurementOfSpeed[] = { 5000, 10000, 20000, 30000, 40000,
+uint32_t IntermediateMeasurementOfSpeed[] = { 9000, 10000, 20000, 30000, 40000,
 		50000, 60000, 70000, 80000, 90000, 100000, 110000, 120000, 130000,
 		140000, 150000, 160000, 170000, 180000, 190000, 200000, 210000, 220000,
 		230000, 240000, 250000, 260000, 270000, 280000, 290000, };
-//Получить растояние между точками
-double getDistance(gpsSpeedMessegeStruct *firstCoor,
-		gpsSpeedMessegeStruct *SecondCoor) {
-	double lat_1;
-	double lat_2;
-	double d_lon;
+//проверка на прохождение расстояния
+uint32_t checkPassageDistance( measurmentStruct *this, uint16_t checkDistance) {
 
+	double curr_distance = getDistance(&this->StartMeas, &this->gpsData, 0);
+	this->Distance = curr_distance;
+	double prev_distance = getDistance(&this->StartMeas, &this->messageArray[3],
+			0);
+	if (curr_distance > checkDistance && prev_distance < checkDistance) {
+
+		return 1;
+	}else{
+		return 0;
+	}
+}
+//Получить дорасчетное время замера расстояния
+uint32_t getResultTimeForDistance(uint16_t checkDistance, measurmentStruct *this) {
+
+	double curr_distance = getDistance(&this->StartMeas, &this->gpsData, 0);
+	double prev_distance = getDistance(&this->StartMeas, &this->messageArray[3],0);
+
+	uint32_t resultTime = getDifTime(this->StartMeas.Time,
+						this->messageArray[3].Time);
+				float koef = 1
+						- ((curr_distance - 402) / (curr_distance - prev_distance));
+				uint32_t difTime = (getDifTime(this->messageArray[3].Time,
+						this->gpsData.Time)) * koef;
+				resultTime += difTime;
+				return resultTime;
+}
+//Получить растояние между точками
+double getDistance(gpsSpeedMessegeStruct *firstCoor, gpsSpeedMessegeStruct *SecondCoor, uint8_t altitud)
+{
+
+	//Radians = (dd.ff)*pi/180
+	double lat_1 = firstCoor->SLatitude * (M_PI / 180);
+	double lat_2 = SecondCoor->SLatitude * (M_PI / 180);
+	double d_lon = firstCoor->SLongitude * (M_PI / 180)
+			- SecondCoor->SLongitude * (M_PI / 180);
+	double d_alt = firstCoor->altitude - SecondCoor->altitude;
 	double angl = atan(
 			(sqrt(
 					pow(cos(lat_2) * sin(d_lon), 2)
@@ -28,11 +60,13 @@ double getDistance(gpsSpeedMessegeStruct *firstCoor,
 													* cos(d_lon), 2))
 					/ (sin(lat_1) * sin(lat_2)
 							+ cos(lat_1) * cos(lat_2) * cos(d_lon))));
-
 	double dist_2 = angl * 6371000;
-
-	double dist_alt = sqrt(pow(dist_2, 2) + pow(100, 2));
-	return dist_alt;
+	if (altitud) {
+		double dist_alt = sqrt(pow(dist_2, 2) + pow(d_alt, 2));
+		return dist_alt;
+	} else {
+		return dist_2;
+	}
 }
 //Обработать пакет
 void processPackage(measurmentStruct *this, gpsSpeedMessegeStruct gpsData) {
@@ -60,6 +94,7 @@ void processPackage(measurmentStruct *this, gpsSpeedMessegeStruct gpsData) {
 	if (this->VehicleStatus == VEHICLE_STOPPED) { // если автомобиль остановлен и готов для старта
 		//обнулить промежуточные итоги
 		this->MeasurmentStatus = MES_STOPPED; // статус измерения "остановлен"
+		this->Distance = 0;
 	}
 	//Проверка на начала замера с места
 	//Если в текущем пакете ГПС появился курс, а в предыдущем он отсутствовал  и
@@ -71,21 +106,19 @@ void processPackage(measurmentStruct *this, gpsSpeedMessegeStruct gpsData) {
 		this->VehicleStatus = VEHICLE_ACCELERATE; // статус автомобиля "Ускоряется"
 		this->MeasurmentStatus = MES_ACCELERATE; // статус измерения "Ускоряется"
 	}
-	if (this->MeasurmentStatus == MES_ACCELERATE) {
-	}
+
 }
-//проверяем переход через замеряемые величины скорости на ускорении
+//проверяем переход через замеряемые величины скорости
 uint32_t checkSpeedThrough(measurmentStruct *this) {
 	for (uint8_t i = 0; i < 29; ++i) {
 		if (this->gpsData.Speed > IntermediateMeasurementOfSpeed[i]
 				&& this->messageArray[3].Speed
 						< IntermediateMeasurementOfSpeed[i]) {
-			uint32_t resTime = getResultTimeForSpeed(
-					IntermediateMeasurementOfSpeed[i], this);
 			//TODO что то делаем
 			return IntermediateMeasurementOfSpeed[i];
 		}
 	}
+	return 0;
 }
 //Старт для замера торможения
 uint32_t checkForStartBreakMeas(measurmentStruct *this) {
