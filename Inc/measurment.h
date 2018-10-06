@@ -32,10 +32,10 @@ typedef enum
 
 typedef struct  {
 	uint32_t Time; //время
-	uint32_t SLatitude;  //Латитуда
+	double SLatitude;  //Латитуда
 	uint32_t Altim;  //Высота
 	char NS[3];                         //
-	uint32_t SLongitude;         //Лонгитуда
+	double SLongitude;         //Лонгитуда
 	char EW[3];                         //
 	uint32_t CourseTrue;                // курс
 	uint32_t Speed; 	//скорость

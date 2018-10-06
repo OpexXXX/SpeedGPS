@@ -6,12 +6,29 @@
  */
 #include "gps.h"
 #include "measurment.h"
+#include <math.h>
+
 
 uint32_t IntermediateMeasurementOfSpeed[] = { 5000, 10000, 20000, 30000, 40000,
 		50000, 60000, 70000, 80000, 90000, 100000, 110000, 120000, 130000,
 		140000, 150000, 160000, 170000, 180000, 190000, 200000, 210000, 220000,
 		230000, 240000, 250000, 260000, 270000, 280000, 290000, };
 
+double getDistance(gpsSpeedMessegeStruct firstCoor, gpsSpeedMessegeStruct SecondCoor)
+{
+	double lat_1;
+	double lat_2;
+	double d_lon;
+
+
+double angl = atan((sqrt(pow(cos(lat_2)*sin(d_lon),2)+pow(cos(lat_1)*sin(lat_2)-sin(lat_1)*cos(lat_2)*cos(d_lon),2) )
+          /(sin(lat_1)*sin(lat_2)+cos(lat_1)*cos(lat_2)*cos(d_lon)))  );
+
+   double dist_2 = angl * 6371000 ;
+
+    double dist_alt = sqrt(pow(dist_2,2)+pow(100,2));
+    return dist_alt;
+	}
 void processPackage(measurmentStruct *this, gpsSpeedMessegeStruct gpsData) {
 	//Сдвигаем буфер с замерами
 	for (uint8_t var = 0; var < 4; ++var) {
@@ -77,9 +94,9 @@ uint32_t checkForStartBreakMeas(measurmentStruct *this) {
 }
 
 //Получить дорасчтное время замера ускорения
-uint32_t getResultTimeForSpeed(uint16_t speed, measurmentStruct *this) {
-	uint32_t resultTime = getDifTime(this->StartMeas.Time,
-			this->messageArray[3].Time);
+uint32_t getResultTimeForSpeed(uint16_t speed, measurmentStruct *this)
+{
+	uint32_t resultTime = getDifTime(this->StartMeas.Time,this->messageArray[3].Time);
 	float gpsDataSpeedF = this->gpsData.Speed;
 	float messageArraySpeedF = this->messageArray[3].Speed;
 	float koef = 1
@@ -89,4 +106,6 @@ uint32_t getResultTimeForSpeed(uint16_t speed, measurmentStruct *this) {
 	resultTime += difTime;
 	return resultTime;
 }
+
+
 

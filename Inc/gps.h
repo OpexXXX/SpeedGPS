@@ -24,16 +24,16 @@ typedef enum {
 
 typedef struct {
 	uint32_t Time; //время
-	uint32_t SLatitude;  //Латитуда
+	float SLatitude;  //Латитуда
 	char NS[3];                         //
-	uint32_t SLongitude;         //Лонгитуда
+	float SLongitude;         //Лонгитуда
 	char EW[3];                         //
 	uint32_t CourseTrue;                // курс
 	uint32_t Speed; 	//скорость
 } gpsSpeedMessegeStruct;
 
 
-
+float stringToFloat(char *string);
 int AsciiToInt(char* s);
 uint8_t Parser(unsigned char data);
 uint32_t getDifTime(uint32_t startTime, uint32_t stopTime );

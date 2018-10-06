@@ -6,7 +6,8 @@
  */
 #include "gps.h"
 #include "ledDriver.h"
-
+#include <stdio.h>
+#include <string.h>
 char Time[12]=""; //время
 char Status[2]=""; //валидность
 char SLatitude[16]="";  //Латитуда
@@ -34,8 +35,47 @@ volatile char DataDone=0 ;
 unsigned char DataValid=0;
 
 extern  osMessageQId GPSHandlerHandle;
+void convertDegToDecimal()
+{
 
-
+}
+/*
+    /* Converting Between Decimal Degrees, Degrees, Minutes and Seconds,
+     * and Radians (dd + mm/60 +ss/3600) to Decimal degrees (dd.ff)
+     *
+     * dd = whole degrees, mm = minutes, ss = seconds
+     *
+     * dd.ff = dd + mm/60 + ss/3600
+     *
+     * Example: 30 degrees 15 minutes 22 seconds = 30 + 15/60 +
+     * 22/3600 = 30.2561
+     *
+     * Decimal degrees (dd.ff) to (dd + mm/60 +ss/3600)
+     *
+     * For the reverse conversion, we want to convert dd.ff to dd mm
+     * ss. Here ff = the fractional part of a decimal degree.
+     *
+     * mm = 60*ff
+     *
+     * ss = 60*(fractional part of mm)
+     *
+     * Use only the whole number part of mm in the final result.
+     *
+     * 30.2561 degrees = 30 degrees
+     *
+     * .2561*60 = 15.366 minutes
+     *
+     * .366 minutes = 22 seconds, so the final result is 30 degrees 15
+     * minutes 22 seconds
+     *
+     * Decimal degrees (dd.ff) to Radians
+     *
+     * Radians = (dd.ff)*pi/180
+     *
+     * Radians to Decimal degrees (dd.ff)
+     *
+     * (dd.ff) = Radians*180/pi
+     */
 
 
 
@@ -121,8 +161,8 @@ void uartParserGps(unsigned char data)
 							gpsUInt.SLatitude =  AsciiRemoveDotToInt(&SLatitude);
 							memcpy(gpsUInt.NS, NS, sizeof(NS));
 							memcpy(gpsUInt.EW, EW, sizeof(EW));
-							gpsUInt.SLongitude =  AsciiRemoveDotToInt(&SLongitude);
-							gpsUInt.CourseTrue =  AsciiRemoveDotToInt(&CourseTrue);
+							gpsUInt.SLongitude =  stringToFloat(&SLongitude);
+							gpsUInt.CourseTrue =  stringToFloat(&CourseTrue);
 							xStatus = xQueueSendToBack(GPSHandlerHandle,&gpsUInt,0);
 			}
 			break;
@@ -132,6 +172,31 @@ void uartParserGps(unsigned char data)
 
 
 
+}
+float stringToFloat(char *string)
+{
+    float result= 0.0;
+    int len = strlen(string);
+    int dotPosition = 0;
+
+    for (int i = 0; i < len; i++)
+    {
+        if (string[i] == '.')
+        {
+          dotPosition = len - i  - 1;
+        }
+        else
+        {
+          result = result * 10.0 + (string[i]-'0');
+        }
+      }
+
+      while (dotPosition--)
+      {
+        result /= 10.0;
+      }
+
+    return result;
 }
 uint32_t getDifTime(uint32_t startTime, uint32_t stopTime )
 {
