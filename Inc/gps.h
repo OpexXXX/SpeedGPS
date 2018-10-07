@@ -49,4 +49,6 @@ float stringToFloat(char *string);
 uint32_t getDifTime(uint32_t startTime, uint32_t stopTime);
 //Парсер посылки UART 1 байт
 uint8_t Parser(unsigned char data);
+//TODO Дописать функцию преобразования коо
+float convertStrDegToDecimal(char*  coor);
 #endif /* GPS_H_ */

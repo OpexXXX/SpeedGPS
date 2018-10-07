@@ -8,17 +8,19 @@
 #include "measurment.h"
 #include <math.h>
 
-uint32_t IntermediateMeasurementOfSpeed[] = { 9000, 10000, 20000, 30000, 40000,
+uint32_t IntermediateMeasurementOfSpeed[] = { 5000, 10000, 20000, 30000, 40000,
 		50000, 60000, 70000, 80000, 90000, 100000, 110000, 120000, 130000,
 		140000, 150000, 160000, 170000, 180000, 190000, 200000, 210000, 220000,
 		230000, 240000, 250000, 260000, 270000, 280000, 290000, };
 //проверка на прохождение расстояния
 uint32_t checkPassageDistance( measurmentStruct *this, uint16_t checkDistance) {
-
+/*Details:{Time = 205557900, SLatitude = 53.1645126, NS = "N\0", SLongitude = 92.2391434, altitude = 0, EW = "E\0", CourseTrue = 0, Speed = 766}
+	По умолчанию:{...}
+	De*/
 	double curr_distance = getDistance(&this->StartMeas, &this->gpsData, 0);
-	this->Distance = curr_distance;
-	double prev_distance = getDistance(&this->StartMeas, &this->messageArray[3],
-			0);
+	this->Distance = (curr_distance*10);
+	double prev_distance = (getDistance(&this->StartMeas, &this->messageArray[3],
+			0))*10;
 	if (curr_distance > checkDistance && prev_distance < checkDistance) {
 
 		return 1;
@@ -48,8 +50,8 @@ double getDistance(gpsSpeedMessegeStruct *firstCoor, gpsSpeedMessegeStruct *Seco
 	//Radians = (dd.ff)*pi/180
 	double lat_1 = firstCoor->SLatitude * (M_PI / 180);
 	double lat_2 = SecondCoor->SLatitude * (M_PI / 180);
-	double d_lon = firstCoor->SLongitude * (M_PI / 180)
-			- SecondCoor->SLongitude * (M_PI / 180);
+	double d_lon = SecondCoor->SLongitude * (M_PI / 180)
+			- firstCoor->SLongitude * (M_PI / 180);
 	double d_alt = firstCoor->altitude - SecondCoor->altitude;
 	double angl = atan(
 			(sqrt(
@@ -93,8 +95,8 @@ void processPackage(measurmentStruct *this, gpsSpeedMessegeStruct gpsData) {
 	} //Если все пять замеров нулевые, считаем , что автомобиль остановлен и готов для старта
 	if (this->VehicleStatus == VEHICLE_STOPPED) { // если автомобиль остановлен и готов для старта
 		//обнулить промежуточные итоги
-		this->MeasurmentStatus = MES_STOPPED; // статус измерения "остановлен"
-		this->Distance = 0;
+		//this->MeasurmentStatus = MES_STOPPED; // статус измерения "остановлен"
+		//this->Distance = 0;
 	}
 	//Проверка на начала замера с места
 	//Если в текущем пакете ГПС появился курс, а в предыдущем он отсутствовал  и

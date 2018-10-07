@@ -41,7 +41,7 @@ typedef struct {
 	uint32_t AvgSpeed; //средняя скорость авто на 5 замеров
 	uint32_t Distance; // Растояние до точки старта
 } measurmentStruct;
-
+measurmentStruct zamer;
 //проверяем переход через замеряемые величины скорости на ускорении
 uint32_t checkSpeedThrough(measurmentStruct *this);
 //Старт для замера торможения

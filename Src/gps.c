@@ -41,10 +41,7 @@ volatile char DataDone = 0;
 unsigned char DataValid = 0;
 
 extern osMessageQId GPSHandlerHandle;
-//TODO Дописать функцию преобразования координат в десятичный вид
-void convertDegToDecimal() {
 
-}
 /*
  /* Converting Between Decimal Degrees, Degrees, Minutes and Seconds,
  * and Radians (dd + mm/60 +ss/3600) to Decimal degrees (dd.ff)
@@ -158,10 +155,10 @@ void uartParserGps(unsigned char data) {
 			float tempSpeed = AsciiRemoveDotToInt(&Speed);
 			tempSpeed = tempSpeed * 1.852;
 			gpsUInt.Speed = tempSpeed;
-			gpsUInt.SLatitude = stringToFloat(&SLatitude)/100;
 			memcpy(gpsUInt.NS, NS, sizeof(NS));
+			gpsUInt.SLatitude = convertStrDegToDecimal(&SLatitude);
 			memcpy(gpsUInt.EW, EW, sizeof(EW));
-			gpsUInt.SLongitude = stringToFloat(&SLongitude)/100;
+			gpsUInt.SLongitude = convertStrDegToDecimal(&SLongitude);
 			gpsUInt.CourseTrue = stringToFloat(&CourseTrue);
 			xStatus = xQueueSendToBack(GPSHandlerHandle, &gpsUInt, 0);
 		}
@@ -171,6 +168,7 @@ void uartParserGps(unsigned char data) {
 	}
 
 }
+
 //Конвертация String в float, возвращает число , "151.6654684" -> 151.6654684
 float stringToFloat(char *string) {
 	float result = 0.0;
@@ -330,4 +328,16 @@ uint8_t Parser(unsigned char data) {
 	ByteCount = 0xff;
 	return 0;
 }
+//TODO Дописать функцию преобразования координат в десятичный вид
+float convertStrDegToDecimal(char*  coor) {
+	// координаты приходят в виде "09224.91216" где 92 градуса 24.91216 минуты, секунд в посылке нет!!!
+	float resultDecCoor, ss;
+	uint16_t dd, mm;
+	float fCoor = stringToFloat(coor) / 100;
+	dd = fCoor;
+	mm = ((fCoor - dd) * 100);
+	ss = ((fCoor - dd) * 100) - mm;
 
+	resultDecCoor = dd + ((float) mm / 60) + ((float) ss / 60);
+	return resultDecCoor;
+}
