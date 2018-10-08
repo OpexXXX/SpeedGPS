@@ -149,8 +149,9 @@ void uartParserGps(unsigned char data) {
 
 	switch (Parser(data)) {
 	case GPS_NRMC:
-		if (Status[0] = 'A') {
+		if (Status[0] != 'K') {
 			gpsSpeedMessegeStruct gpsUInt;
+			gpsUInt.Status = Status[0];
 			gpsUInt.Time = AsciiRemoveDotToInt(&Time) * 10;
 			float tempSpeed = AsciiRemoveDotToInt(&Speed);
 			tempSpeed = tempSpeed * 1.852;
@@ -161,7 +162,8 @@ void uartParserGps(unsigned char data) {
 			gpsUInt.SLongitude = convertStrDegToDecimal(&SLongitude);
 			gpsUInt.CourseTrue = stringToFloat(&CourseTrue);
 			xStatus = xQueueSendToBack(GPSHandlerHandle, &gpsUInt, 0);
-		}
+
+	}
 		break;
 	default:
 		break;

@@ -23,6 +23,7 @@ typedef enum {
 } GPS_MESSEGE_TYPE;
 
 typedef struct {
+	uint8_t Status;
 	uint32_t Time; //время
 	float SLatitude;  //Широта
 	char NS[3];                         //Север/Юг

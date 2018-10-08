@@ -307,6 +307,64 @@ void getLedBufferFromNumberSpeed(uint32_t number, dysplayBufferStruct* ledBuffer
 
 }
 
+void getLedBufferFromNumberSpeedNotDot(uint32_t number, dysplayBufferStruct* ledBuffer) {
+
+	ledBuffer->firstReg = numbers[0];
+	ledBuffer->secondReg = numbers[0];
+	ledBuffer->thirdReg = numbers[0];
+	ledBuffer->fourthReg = numbers[0];
+
+	if (number < 10) {
+		ledBuffer->firstReg  = numbers[number];
+		ledBuffer->secondReg = numbers[0];
+		ledBuffer->thirdReg = numbers[0];
+		ledBuffer->fourthReg  = numbers[0];
+		ledBuffer->fourthReg=ledBuffer->fourthReg&~0b00010000;
+	}
+	if (number >= 10 && number < 100) {
+		ledBuffer->firstReg  = numbers[number % 10];
+		ledBuffer->secondReg = numbers[number / 10];
+		ledBuffer->thirdReg = numbers[0];
+		ledBuffer->fourthReg  = numbers[0];
+		ledBuffer->fourthReg=ledBuffer->fourthReg&~0b00010000;
+	}
+	if (number >= 100 && number < 1000) {
+		ledBuffer->firstReg  = numbers[number % 10];
+		ledBuffer->secondReg = numbers[number % 100 / 10];
+		ledBuffer->thirdReg = numbers[number / 100];
+		ledBuffer->fourthReg  = numbers[0];
+				ledBuffer->fourthReg=ledBuffer->fourthReg&~0b00010000;
+	}
+	if (number >= 1000 && number < 10000) {
+		ledBuffer->firstReg  = numbers[number % 10];
+		ledBuffer->secondReg = numbers[number % 100 / 10];
+		ledBuffer->thirdReg = numbers[number % 1000 / 100];
+		ledBuffer->fourthReg  = numbers[number / 1000];
+		ledBuffer->fourthReg=ledBuffer->fourthReg&~0b00010000;
+	}
+	if (number >= 10000 && number < 100000) {
+
+		ledBuffer->firstReg  = numbers[number % 100 / 10];
+		ledBuffer->secondReg = numbers[number % 1000 / 100];
+		ledBuffer->thirdReg = numbers[number % 10000 / 1000];
+		ledBuffer->thirdReg=ledBuffer->thirdReg&~0b00010000;
+		ledBuffer->fourthReg  = numbers[number / 10000];
+
+
+	}
+	if (number >= 100000 && number < 1000000) {
+
+			ledBuffer->firstReg  = numbers[number % 1000 / 100];
+			ledBuffer->secondReg = numbers[number % 10000 / 1000];
+			ledBuffer->secondReg=ledBuffer->secondReg&~0b00010000;
+			ledBuffer->thirdReg = numbers[number % 100000 / 10000];
+			ledBuffer->fourthReg  = numbers[number / 100000];
+
+
+		}
+
+
+}
 
 
 void getLedBufferFromNumberTime(uint32_t time, dysplayBufferStruct* ledBuffer) {

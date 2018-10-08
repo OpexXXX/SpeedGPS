@@ -12,15 +12,16 @@ uint32_t IntermediateMeasurementOfSpeed[] = { 5000, 10000, 20000, 30000, 40000,
 		50000, 60000, 70000, 80000, 90000, 100000, 110000, 120000, 130000,
 		140000, 150000, 160000, 170000, 180000, 190000, 200000, 210000, 220000,
 		230000, 240000, 250000, 260000, 270000, 280000, 290000, };
+uint8_t counterPack = 0;
 //проверка на прохождение расстояния
 uint32_t checkPassageDistance( measurmentStruct *this, uint16_t checkDistance) {
 /*Details:{Time = 205557900, SLatitude = 53.1645126, NS = "N\0", SLongitude = 92.2391434, altitude = 0, EW = "E\0", CourseTrue = 0, Speed = 766}
 	По умолчанию:{...}
 	De*/
 	double curr_distance = getDistance(&this->StartMeas, &this->gpsData, 0);
-	this->Distance = (curr_distance*10);
+	this->Distance = (curr_distance);
 	double prev_distance = (getDistance(&this->StartMeas, &this->messageArray[3],
-			0))*10;
+			0));
 	if (curr_distance > checkDistance && prev_distance < checkDistance) {
 
 		return 1;
@@ -79,6 +80,8 @@ void processPackage(measurmentStruct *this, gpsSpeedMessegeStruct gpsData) {
 	// Записываем текущий замер
 	this->messageArray[4] = gpsData;
 	this->gpsData = gpsData;
+
+
 	// Берем среднюю скорость пяти замеров
 	this->AvgSpeed = (this->messageArray[0].Speed + this->messageArray[1].Speed
 			+ this->messageArray[2].Speed + this->messageArray[3].Speed
@@ -95,8 +98,8 @@ void processPackage(measurmentStruct *this, gpsSpeedMessegeStruct gpsData) {
 	} //Если все пять замеров нулевые, считаем , что автомобиль остановлен и готов для старта
 	if (this->VehicleStatus == VEHICLE_STOPPED) { // если автомобиль остановлен и готов для старта
 		//обнулить промежуточные итоги
-		//this->MeasurmentStatus = MES_STOPPED; // статус измерения "остановлен"
-		//this->Distance = 0;
+		this->MeasurmentStatus = MES_STOPPED; // статус измерения "остановлен"
+		this->Distance = 0;
 	}
 	//Проверка на начала замера с места
 	//Если в текущем пакете ГПС появился курс, а в предыдущем он отсутствовал  и

@@ -9,13 +9,13 @@
 #define MEASURMENT_H_
 
 typedef enum {
-	VEHICLE_STOPPED = 0, VEHICLE_ACCELERATE, VEHICLE_BRAKES
+	VEHICLE_STOPPED = 1, VEHICLE_ACCELERATE, VEHICLE_BRAKES
 } VehicleState;
 typedef enum {
-	MES_BRAKES = 0, MES_ACCELERATE, MES_STOPPED
+	MES_BRAKES = 1, MES_ACCELERATE, MES_STOPPED
 } StatusOfMeasurement;
 typedef enum {
-	MES_NOT_FIXED = 0, MES_FIXED
+	MES_NOT_FIXED = 1, MES_FIXED
 } StatusOfIndMeasurement;
 //Структура фиксации промежуточных результатов
 typedef struct {
