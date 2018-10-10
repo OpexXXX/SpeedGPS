@@ -8,22 +8,22 @@
 #include "ledDriver.h"
 #include <stdio.h>
 #include <string.h>
-char Time[12] = ""; //время
-char Status[2] = ""; //валидность
-char SLatitude[16] = "";  //Широта
-char NS[3] = "";                          //
-char SLongitude[12] = "";         //Долгота
-char EW[3] = "";                          //
-char CourseTrue[10] = "";                 // курс
-char Data[12] = "";                               //Дата
-char SatCount[4] = "";                    //используемых спутников
-char AltitudaMSL[12] = "";            //высота
-char ViewSat[4];   //
-char COG[8] = "";                 //
-char COGstat[4] = "";             //
-char Speed[8] = "";                       //скорость
-char SpeedAlt[8] = "";    //
-char UNUSED[32] = "";                //мусорка, тут все данные, которые не нужны
+char Time[12] = ""; /*//время*/
+char Status[2] = ""; /*//валидность*/
+char SLatitude[16] = "";  /*//Широта*/
+char NS[3] = "";
+char SLongitude[12] = "";         /*//Долгота*/
+char EW[3] = "";
+char CourseTrue[10] = "";                 /*// курс*/
+char Data[12] = "";                               /*//Дата*/
+char SatCount[4] = "";                    /*//используемых спутников*/
+char AltitudaMSL[12] = "";            /*//высота*/
+char ViewSat[4];
+char COG[8] = "";
+char COGstat[4] = "";
+char Speed[8] = "";                       /*//скорость*/
+char SpeedAlt[8] = "";
+char UNUSED[32] = "";                /*//мусорка, тут все данные, которые не нужны*/
 char Knot[8] = "";
 char * const RMC[] = { Time, Status, SLatitude, NS, SLongitude, EW, Speed,
 		CourseTrue, Data, UNUSED, UNUSED, UNUSED, UNUSED, UNUSED };
@@ -43,7 +43,7 @@ unsigned char DataValid = 0;
 extern osMessageQId GPSHandlerHandle;
 
 /*
- /* Converting Between Decimal Degrees, Degrees, Minutes and Seconds,
+  Converting Between Decimal Degrees, Degrees, Minutes and Seconds,
  * and Radians (dd + mm/60 +ss/3600) to Decimal degrees (dd.ff)
  *
  * dd = whole degrees, mm = minutes, ss = seconds
@@ -79,30 +79,30 @@ extern osMessageQId GPSHandlerHandle;
  *
  * (dd.ff) = Radians*180/pi
  */
-//Конвертация String в Int, строка без точки, "154" -> 154
-int AsciiToInt(char* s) {
+/*//Конвертация String в Int, строка без точки, "154" -> 154*/
+int asciiToInt(char* s) {
 	int n = 0;
 	while (*s >= '0' && *s <= '9') {
 		n *= 10;
 		n += *s++;
 		n -= '0';
 	}
-	return n;
+	return (n);
 }
-//Конвертация String в Int, возвращает целую часть до точки "151.6654684" -> 154
-uint32_t AsciiBeforeDotToInt(char* s) {
+/*//Конвертация String в Int, возвращает целую часть до точки "151.6654684" -> 154*/
+uint32_t asciiBeforeDotToInt(char* s) {
 	uint32_t n = 0;
 	while (*s >= '0' && *s <= '9') {
 		if (*s == '.')
-			return n;
+			return (n);
 		n *= 10;
 		n += *s++;
 		n -= '0';
 	}
-	return n;
+	return (n);
 }
-//Конвертация String в Int, возвращает дробную часть после точки, "151.6654684" -> 6654684
-uint32_t AsciiAfterDotToInt(char* s) {
+/*//Конвертация String в Int, возвращает дробную часть после точки, "151.6654684" -> 6654684*/
+uint32_t asciiAfterDotToInt(char* s) {
 	uint32_t n = 0;
 	uint8_t flagDot = 0;
 	while (*s) {
@@ -119,10 +119,10 @@ uint32_t AsciiAfterDotToInt(char* s) {
 		}
 
 	}
-	return n;
+	return (n);
 }
-//Конвертация String в Int, возвращает число без точки, "151.6654684" -> 1516654684
-uint32_t AsciiRemoveDotToInt(char* s)
+/*//Конвертация String в Int, возвращает число без точки, "151.6654684" -> 1516654684*/
+uint32_t asciiRemoveDotToInt(char* s)
 
 {
 	uint32_t n = 0;
@@ -140,27 +140,27 @@ uint32_t AsciiRemoveDotToInt(char* s)
 		}
 
 	}
-	return n;
+	return (n);
 }
-//Парсер пакета UART
+/*//Парсер пакета UART*/
 void uartParserGps(unsigned char data) {
 
 	portBASE_TYPE xStatus;
 
-	switch (Parser(data)) {
+	switch (parserGPSChar(data)) {
 	case GPS_NRMC:
 		if (Status[0] != 'K') {
 			gpsSpeedMessegeStruct gpsUInt;
 			gpsUInt.Status = Status[0];
-			gpsUInt.Time = AsciiRemoveDotToInt(&Time) * 10;
-			float tempSpeed = AsciiRemoveDotToInt(&Speed);
+			gpsUInt.Time = asciiRemoveDotToInt(Time) * 10;
+			float tempSpeed = asciiRemoveDotToInt(Speed);
 			tempSpeed = tempSpeed * 1.852;
 			gpsUInt.Speed = tempSpeed;
 			memcpy(gpsUInt.NS, NS, sizeof(NS));
-			gpsUInt.SLatitude = convertStrDegToDecimal(&SLatitude);
+			gpsUInt.SLatitude = convertStrDegToDecimal(SLatitude);
 			memcpy(gpsUInt.EW, EW, sizeof(EW));
-			gpsUInt.SLongitude = convertStrDegToDecimal(&SLongitude);
-			gpsUInt.CourseTrue = stringToFloat(&CourseTrue);
+			gpsUInt.SLongitude = convertStrDegToDecimal(SLongitude);
+			gpsUInt.CourseTrue = stringToFloat(CourseTrue);
 			xStatus = xQueueSendToBack(GPSHandlerHandle, &gpsUInt, 0);
 
 	}
@@ -171,7 +171,7 @@ void uartParserGps(unsigned char data) {
 
 }
 
-//Конвертация String в float, возвращает число , "151.6654684" -> 151.6654684
+/*//Конвертация String в float, возвращает число , "151.6654684" -> 151.6654684*/
 float stringToFloat(char *string) {
 	float result = 0.0;
 	int len = strlen(string);
@@ -189,15 +189,12 @@ float stringToFloat(char *string) {
 		result /= 10.0;
 	}
 
-	return result;
+	return (result);
 }
-//Возвращает разницу времени в секундах
+/*//Возвращает разницу времени в секундах*/
 uint32_t getDifTime(uint32_t startTime, uint32_t stopTime) {
 	uint64_t result = 0;
-	int64_t hour = 0;
-	int64_t minute = 0;
-	int64_t seconds = 0;
-//150012300
+/*//150012300*/
 	int64_t difHour = (stopTime / 10000000) - (startTime / 10000000);
 
 	int64_t difMinute = (stopTime / 100000) % 100 + difHour * 60
@@ -207,11 +204,11 @@ uint32_t getDifTime(uint32_t startTime, uint32_t stopTime) {
 			- (startTime % 100000);
 
 	result = difSecons;
-	return result;
+	return (result);
 
 }
-//Парсер посылки UART 1 байт
-uint8_t Parser(unsigned char data) {
+/*//Парсер посылки UART 1 байт*/
+uint8_t parserGPSChar(unsigned char data) {
 	static unsigned char ByteCount = 0xff;
 	static unsigned int MsgType;
 	static char *MsgTxt = (char*) &MsgType;
@@ -222,22 +219,22 @@ uint8_t Parser(unsigned char data) {
 		ComaPoint = 0xff;
 		MsgTxt = (char*) &MsgType;
 		return 0;
-	} //ждем начала стрки
+	} /*//ждем начала стрки*/
 	if (ByteCount == 0xff)
-		return 0;                                                             //
+		return (0);
 	ByteCount++;
 	if (ByteCount <= 1)
-		return 0;                                                         //
-	if (ByteCount < 6 && ByteCount > 1)            //берем 4 символа заголовка
+		return (0);
+	if (ByteCount < 6 && ByteCount > 1)            /*//берем 4 символа заголовка*/
 			{
-		*MsgTxt = data;   //и делаем из него число
+		*MsgTxt = data;   /*//и делаем из него число*/
 		MsgTxt++;
-		return 0;
+		return (0);
 	}
-	//
+
 	switch (MsgType) {
-	case 0x434D5250:                             //GPRMC
-	case 0x434D524E:                             //GNRMC
+	case 0x434D5250:                             /*//GPRMC*/
+	case 0x434D524E:                             /*//GNRMC*/
 		if (data == ',') {
 			ComaPoint++;
 			CharPoint = 0;
@@ -247,13 +244,13 @@ uint8_t Parser(unsigned char data) {
 		if ((data) == ('*')) {
 			MsgType = 0;
 
-			return GPS_NRMC;
+			return (GPS_NRMC);
 		}
 		RMC[ComaPoint][CharPoint++] = data;
 		RMC[ComaPoint][CharPoint] = 0;
 		return 0;
-	case 0x41474750:                             //PGGA
-	case 0x4147474e:                             //NGGA
+	case 0x41474750:                             /*//PGGA*/
+	case 0x4147474e:                             /*//NGGA*/
 		if (data == ',') {
 			ComaPoint++;
 			CharPoint = 0;
@@ -267,7 +264,7 @@ uint8_t Parser(unsigned char data) {
 		GGA[ComaPoint][CharPoint++] = data;
 		GGA[ComaPoint][CharPoint] = 0;
 		return 0;
-	case 0x47545650:             //PVTG
+	case 0x47545650:             /*//PVTG*/
 		if (data == ',') {
 			ComaPoint++;
 			CharPoint = 0;
@@ -280,7 +277,7 @@ uint8_t Parser(unsigned char data) {
 		VTG[ComaPoint][CharPoint++] = data;
 		VTG[ComaPoint][CharPoint] = 0;
 		return 0;
-	case 0x4754564e:             //NVTG
+	case 0x4754564e:             /*//NVTG*/
 		if (data == ',') {
 			ComaPoint++;
 			CharPoint = 0;
@@ -293,7 +290,7 @@ uint8_t Parser(unsigned char data) {
 		VTG[ComaPoint][CharPoint++] = data;
 		VTG[ComaPoint][CharPoint] = 0;
 		return 0;
-	case 0x56534750:             //PGSV
+	case 0x56534750:             /*//PGSV*/
 		if (data == ',') {
 			ComaPoint++;
 			CharPoint = 0;
@@ -301,14 +298,14 @@ uint8_t Parser(unsigned char data) {
 			return 0;
 		}
 		if (data == '*') {
-			GPS_COUNT = AsciiToInt(ViewSat);
+			GPS_COUNT = asciiToInt(ViewSat);
 			MsgType = 0;
 			return GPS_PGSV;
 		}
 		GSV[ComaPoint][CharPoint++] = data;
 		GSV[ComaPoint][CharPoint] = 0;
 		return 0;
-	case 0x5653474c:             //LGSV
+	case 0x5653474c:             /*//LGSV*/
 		if (data == ',') {
 			ComaPoint++;
 			CharPoint = 0;
@@ -316,7 +313,7 @@ uint8_t Parser(unsigned char data) {
 			return 0;
 		}
 		if (data == '*') {
-			GLONAS_COUNT = AsciiToInt(ViewSat);
+			GLONAS_COUNT = asciiToInt(ViewSat);
 			MsgType = 0;
 			return GPS_LGSV;
 		}
@@ -330,16 +327,16 @@ uint8_t Parser(unsigned char data) {
 	ByteCount = 0xff;
 	return 0;
 }
-//TODO Дописать функцию преобразования координат в десятичный вид
-float convertStrDegToDecimal(char*  coor) {
-	// координаты приходят в виде "09224.91216" где 92 градуса 24.91216 минуты, секунд в посылке нет!!!
-	float resultDecCoor, ss;
-	uint16_t dd, mm;
-	float fCoor = stringToFloat(coor) / 100;
-	dd = fCoor;
-	mm = ((fCoor - dd) * 100);
-	ss = ((fCoor - dd) * 100) - mm;
+	/*//TODO Дописать функцию преобразования координат в десятичный вид*/
+	float convertStrDegToDecimal(char  *coor) {
+		/*// координаты приходят в виде "09224.91216" где 92 градуса 24.91216 минуты, секунд в посылке нет!!!*/
+		float resultDecCoor, ss;
+		uint16_t dd, mm;
+		float fCoor = stringToFloat(coor) / 100;
+		dd = fCoor;
+		mm = ((fCoor - dd) * 100);
+		ss = ((fCoor - dd) * 100) - mm;
 
-	resultDecCoor = dd + ((float) mm / 60) + ((float) ss / 60);
-	return resultDecCoor;
-}
+		resultDecCoor = dd + ((float) mm / 60) + ((float) ss / 60);
+		return resultDecCoor;
+	}

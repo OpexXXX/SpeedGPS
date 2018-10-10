@@ -11,17 +11,17 @@ uint16_t delay_disp = 10;
 
 uint8_t numbers[12]=
 {
-		0b00010100, //0
-		0b01110111,//1
-		0b00011010,//2
-		0b01010010,//3
-		0b01110001, //4
-		0b11010000, //5
-		0b10010000, //6
-		0b01110110, //7
-		0b00010000, //8
-		0b01010000,//9
-		0b11111111 // Выкл
+		0b00010100, /*//0*/
+		0b01110111,/*//1*/
+		0b00011010,/*//2*/
+		0b01010010,/*//3*/
+		0b01110001, /*//4*/
+		0b11010000, /*//5*/
+		0b10010000, /*//6*/
+		0b01110110, /*//7*/
+		0b00010000, /*//8*/
+		0b01010000,/*//9*/
+		0b11111111 /*// Выкл*/
 };
 
 
@@ -30,37 +30,37 @@ uint8_t getNumberFromchar(char text){
 	switch (text)
 						{
 							case '1':
-								return numbers[1];
+								return (numbers[1]);
 								break;
 							case '2':
-								return numbers[2];
+								return (numbers[2]);
 								break;
 							case '3':
-								return numbers[3];
+								return (numbers[3]);
 								break;
 							case '4':
-								return numbers[4];
+								return (numbers[4]);
 								break;
 							case '5':
-								return numbers[5];
+								return (numbers[5]);
 								break;
 							case '6':
-								return numbers[6];
+								return (numbers[6]);
 								break;
 							case '7':
-								return numbers[7];
+								return (numbers[7]);
 								break;
 							case '8':
-								return numbers[8];
+								return (numbers[8]);
 								break;
 							case '9':
-								return numbers[9];
+								return (numbers[9]);
 								break;
 							case '0':
-								return numbers[0];
+								return (numbers[0]);
 								break;
 							default:
-								return numbers[11];
+								return (numbers[11]);
 								break;
 						}
 }
@@ -73,7 +73,7 @@ void getLedBufferFromSpeed(const char* Text, dysplayBufferStruct* ledBuffer) {
 	};
 	uint8_t counter = 0;                /* счетчик и одновременно индекс      */
 	uint8_t counter2 = 0;
-	//while(*s1)
+	/*//while(*s1)*/
 	while(*Text){   /* пока не встретился признак конца текста */
 		if( *Text!= '.') {
 			tempBuf[counter2]=getNumberFromchar(*Text);
@@ -145,7 +145,7 @@ void getLedBufferFromString(const char* Text, dysplayBufferStruct* ledBuffer) {
 	};
 	uint8_t counter = 0;                /* счетчик и одновременно индекс      */
 	uint8_t counter2 = 0;
-	//while(*s1)
+	/*//while(*s1)*/
 	while(*Text || counter2<4){   /* пока не встретился признак конца текста */
 		if( *Text!= '.') {
 			tempBuf[counter2]=getNumberFromchar(*Text);
@@ -307,7 +307,7 @@ void getLedBufferFromNumberSpeed(uint32_t number, dysplayBufferStruct* ledBuffer
 
 }
 
-void getLedBufferFromNumberSpeedNotDot(uint32_t number, dysplayBufferStruct* ledBuffer) {
+void getLedBufferFromSpeedNotDot(uint32_t number, dysplayBufferStruct* ledBuffer) {
 
 	ledBuffer->firstReg = numbers[0];
 	ledBuffer->secondReg = numbers[0];
@@ -367,7 +367,7 @@ void getLedBufferFromNumberSpeedNotDot(uint32_t number, dysplayBufferStruct* led
 }
 
 
-void getLedBufferFromNumberTime(uint32_t time, dysplayBufferStruct* ledBuffer) {
+void getLedBufferFromTime(uint32_t time, dysplayBufferStruct* ledBuffer) {
 	uint32_t number = time/10;
 
 

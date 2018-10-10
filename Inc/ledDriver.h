@@ -34,5 +34,5 @@ void getLedBufferFromString(const char* Text, dysplayBufferStruct* ledBuffer);
 uint8_t getNumberFromchar(char text);
 void getLedBufferFromNumber(uint32_t numberIn, dysplayBufferStruct* ledBuffer);
 void getLedBufferFromSpeed(const char* Text, dysplayBufferStruct* ledBuffer);
-
+void getLedBufferFromTime(uint32_t time, dysplayBufferStruct* ledBuffer);
 #endif /* LEDDRIVER_H_ */
