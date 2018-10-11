@@ -60,6 +60,7 @@
 //#include  "gps.h"
 
 #include "MeasHadler.h"
+#include "Acceleration.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -612,9 +613,12 @@ GPSHadlerFunc (void const * argument)
   portBASE_TYPE xStatus;
   //measurmentStruct zamer;
  Gps::gpsMessege gpsData;
+ Measurment::gpsMessage gpsMes;
   uint8_t counter = 0;
   for (;;)
     {
+	  Measurment::MeasHadler::processPackage(gpsMes);
+
 //      dysplayBufferStruct SymBuffer;
 //      SymBuffer.LedState = 0;
 //      xStatus = xQueueReceive(GPSHandlerHandle, &gpsData, 1);

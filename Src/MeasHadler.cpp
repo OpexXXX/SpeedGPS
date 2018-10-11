@@ -19,7 +19,8 @@ MeasHadler::~MeasHadler() {
 
 /* namespace Measurment */
 /*проверка на прохождение расстояния*/
-uint32_t MeasHadler::checkPassageDistance(uint16_t checkDistance) {
+uint32_t MeasHadler::checkPassageDistance(uint16_t checkDistance) 
+{
 	/*Details:{Time = 205557900, SLatitude = 53.1645126, NS = "N\0", SLongitude = 92.2391434, altitude = 0, EW = "E\0", CourseTrue = 0, Speed = 766}
 	 По умолчанию:{...}
 	 De*/
@@ -56,8 +57,8 @@ uint32_t MeasHadler::getResultTimeForDistance(uint16_t checkDistance) {
 /*Получить растояние между точками*/
 
 double Measurment::MeasHadler::getDistance(gpsMessege *firstCoor,
-		gpsMessege *SecondCoor, bool altitud) {
-
+		gpsMessege *SecondCoor, bool altitud) 
+{
 	/*//Radians = (dd.ff)*pi/180*/
 	double lat_1 = firstCoor->SLatitude * (M_PI / 180);
 	double lat_2 = SecondCoor->SLatitude * (M_PI / 180);
@@ -84,46 +85,12 @@ double Measurment::MeasHadler::getDistance(gpsMessege *firstCoor,
 /*Обработать пакет*/
 void MeasHadler::processPackage(gpsMessege gpsData) {
 	/*//Сдвигаем буфер с замерами*/
-	for (uint8_t var = 0; var < 4; ++var) {
-		measStrukt->messageArray[var] = measStrukt->messageArray[var + 1];
-	}
-	/*// Записываем текущий замер*/
-	measStrukt->messageArray[4] = gpsData;
-	measStrukt->gpsData = gpsData;
-
+	moveBuffer(gpsData);
 	/*// Берем среднюю скорость пяти замеров*/
-	measStrukt->AvgSpeed = (measStrukt->messageArray[0].Speed
-			+ measStrukt->messageArray[1].Speed
-			+ measStrukt->messageArray[2].Speed
-			+ measStrukt->messageArray[3].Speed
-			+ measStrukt->messageArray[4].Speed) / 5;
-	/*//Проверка на Остановку автомобиля, обнуление замеров, если 5 замеров отсутствует курс и скорость ниже 1 км/ч*/
-	uint8_t flagRes = 0;
-	/*//прогоняем все пять замеров*/
-	for (int var = 0; var < 5; ++var) {
-		flagRes += (measStrukt->messageArray[var].CourseTrue == 0); /*//проверяем отсутствие курса*/
-		flagRes += (measStrukt->messageArray[var].Speed < 1000); /*// проверяем скорость ниже 1 км/ч*/
-	}
-	if (flagRes == 10) {
-		measStrukt->VehicleStatus = VEHICLE_STOPPED;
-	} /*//Если все пять замеров нулевые, считаем , что автомобиль остановлен и готов для старта*/
-	if (measStrukt->VehicleStatus == VEHICLE_STOPPED) { /*// если автомобиль остановлен и готов для старта
-	 //обнулить промежуточные итоги*/
-		measStrukt->MeasurmentStatus = MES_STOPPED; /*// статус измерения "остановлен"*/
-		measStrukt->Distance = 0;
-	}
-	/*
-	 //Проверка на начала замера с места
-	 //Если в текущем пакете ГПС появился курс, а в предыдущем он отсутствовал  и
-	 //средняя скорость предыдущих двух замеров меньше 1 км/ч
-	 */
-	if (gpsData.CourseTrue != 0 && (measStrukt->messageArray[3].CourseTrue == 0)
-			&& (((measStrukt->messageArray[3].Speed
-					+ measStrukt->messageArray[2].Speed) / 2) < 1000)) {
-		measStrukt->StartMeas = measStrukt->messageArray[3]; /*// Записываем точку старта*/
-		measStrukt->VehicleStatus = VEHICLE_ACCELERATE; /*// статус автомобиля "Ускоряется"*/
-		measStrukt->MeasurmentStatus = MES_ACCELERATE; /*// статус измерения "Ускоряется"*/
-	}
+	getAvgSpeed();
+
+	checkViecleStatus();
+	
 
 }
 /*проверяем переход через замеряемые величины скорости*/
@@ -162,5 +129,55 @@ uint32_t MeasHadler::getResultTimeForSpeed(uint16_t speed) {
 			measStrukt->gpsData.Time)) * koef;
 	resultTime += difTime;
 	return (resultTime);
+}
+
+static void MeasHadler::getAvgSpeed() //Получить среднюю скорость
+{
+	uint32_t sumSpeed=0;
+	for (int i = 0; i < 5; ++i)
+	{
+		sumSpeed+=messageArray[i].Speed;
+	}
+AvgSpeed = sumSpeed/5;
+}
+
+static void MeasHadler::moveBuffer(gpsMessege gpsData) //Сдвиг буфера
+
+{
+for (uint8_t var = 0; var < 4; ++var) {
+		messageArray[var] = messageArray[var + 1];
+	}
+	messageArray[4] = gpsData;
+	this->gpsData = gpsData;
+}
+static void MeasHadler::checkViecleStatus()
+{
+	/*//Проверка на Остановку автомобиля, обнуление замеров, если 5 замеров отсутствует курс и скорость ниже 1 км/ч*/
+	uint8_t flagRes = 0;
+	/*//прогоняем все пять замеров*/
+	for (int var = 0; var < 5; ++var) {
+		flagRes += (messageArray[var].CourseTrue == 0); /*//проверяем отсутствие курса*/
+		flagRes += (messageArray[var].Speed < 1000); /*// проверяем скорость ниже 1 км/ч*/
+	}
+	if (flagRes == 10) {
+		VehicleStatus = VEHICLE_STOPPED;
+	} /*//Если все пять замеров нулевые, считаем , что автомобиль остановлен и готов для старта*/
+	
+	/*
+	 //Проверка на начала замера с места
+	 //Если в текущем пакете ГПС появился курс, а в предыдущем он отсутствовал  и
+	 //средняя скорость предыдущих двух замеров меньше 1 км/ч
+	 */
+	if (gpsData.CourseTrue != 0 && (messageArray[3].CourseTrue == 0)
+			&& (((messageArray[3].Speed
+					+ messageArray[2].Speed) / 2) < 1000)) {
+		StartMeas = measStrukt->messageArray[3]; /*// Записываем точку старта*/
+		VehicleStatus = VEHICLE_ACCELERATE; /*// статус автомобиля "Ускоряется"*/
+		MeasurmentStatus = MES_ACCELERATE; /*// статус измерения "Ускоряется"*/
+	}
+}
+static StatusOfMeasurement MeasHadler::checkMeasurmentStatus()
+{
+
 }
 }
