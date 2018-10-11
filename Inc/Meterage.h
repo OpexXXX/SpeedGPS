@@ -8,13 +8,13 @@
 #ifndef ACCELERATION_H_
 #define ACCELERATION_H_
 
-#include "MeeasHadler.h"
+#include <MeasHadler.h>
 
 namespace Measurment {
 
 class Meterage: public MeasHadler {
-	static gpsMessege startPoint; //Посылка с места старта
-	gpsMessege finishPoint; //Посылка с места старта
+	const gpsMessage startPoint; //Посылка с места старта
+	gpsMessage finishPoint; //Посылка с финиша
     uint32_t resultTime; // Итоговое время замера
 
 	double getDistanceFromStart(bool altitud); /*Получить растояние от стартовой точки*/
@@ -26,7 +26,7 @@ class Meterage: public MeasHadler {
 	uint32_t checkDistanceThrough(bool altitud);/*проверяем переход через замеряемые величины расстояния*/
 
 public:
-	Meterage(gpsMessege startPoint);
+	Meterage(gpsMessage startPoint);
 	virtual ~Meterage();
 };
 
