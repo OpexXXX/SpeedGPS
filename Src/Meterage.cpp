@@ -5,30 +5,17 @@
  *      Author: opex
  */
 
-#include "Meterage.h"
+#include <Acceleration.h>
 
 namespace Measurment {
 
-Meterage::Meterage(gpsMessage startPoint) {
+Acceleration::Acceleration(gpsMessege startPoint) {
 	// TODO Автоматически созданная заглушка конструктора
 
-
 }
 
-Meterage::~Meterage() {
+Acceleration::~Acceleration() {
 	// TODO !CodeTemplates.destructorstub.tododesc!
 }
-
-    double getDistanceFromStart(bool altitud){} /*Получить растояние от стартовой точки*/
-
-    uint32_t getResultTimeForSpeed(uint16_t speed){
-
-    }/*//получить дорасчетное время замера ускорения*/
-    uint32_t getResultTimeForDistance(uint16_t checkDistance) {
-
-    }/*Получить дорасчетное время замера расстояния*/
-
-    uint32_t checkSpeedThrough(bool altitud){} // Переход через измеряемую скорость
-    uint32_t checkDistanceThrough(bool altitud){}/*проверяем переход через замеряемые величины расстояния*/
 
 } /* namespace Measurment */
