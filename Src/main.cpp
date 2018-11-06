@@ -641,8 +641,7 @@ void GpsTask(void const * argument)
 				  ssd1306_SetCursor(5,33);
 				  ssd1306_WriteString("10.3",Font_7x10,White);
 				  ssd1306_SetCursor(5,44);
-				 ssd1306_WriteString(gpsParser.Status,Font_7x10,White);
-				 ssd1306_WriteString(gpsParser.Speed,Font_7x10,White);
+
 
 
 				 for (uint8_t var = 0; var < 128; ++var) {

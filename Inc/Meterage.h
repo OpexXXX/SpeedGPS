@@ -4,20 +4,18 @@
  *  Created on: 10 окт. 2018 г.
  *      Author: opex
  */
-
+#pragma once
 #ifndef ACCELERATION_H_
 #define ACCELERATION_H_
 
 #include "MeasHadler.h"
-#include <math.h>
+
 namespace Met {
 
-double getDistance(MeasHadler::gpsMessage *firstCoor,//Получить расстояние между точками
-		MeasHadler::gpsMessage *SecondCoor, bool altitud);
+
 
 class Meterage {
-	MeasHadler::gpsMessage startPoint; //Посылка с места старта
-	MeasHadler::gpsMessage finishPoint; //Посылка с финиша
+
 
 	uint32_t resultTime; // Итоговое время замера
 	double getDistanceFromStart(bool altitud); /*Получить растояние от стартовой точки*/
@@ -29,10 +27,13 @@ class Meterage {
 	uint32_t checkPassageDistance(uint16_t checkDistance);
 	/*//Получить дорасчетное время замера ускорения*/
 public:
-
-			MeasHadler::gpsMessage *SecondCoor, bool altitud);
+	Meas::gpsMessage startPoint; //Посылка с места старта
+		Meas::gpsMessage finishPoint; //Посылка с финиша
+	uint32_t getDifTime(uint32_t startTime, uint32_t stopTime);
+	double getDistance(Meas::gpsMessage firstCoor,//Получить расстояние между точками
+			Meas::gpsMessage SecondCoor, bool altitud);
 	virtual void chekMeasurment();
-	Meterage(MeasHadler::gpsMessage startPoint);
+	Meterage(Meas::gpsMessage startPoint);
 	virtual ~Meterage();
 };
 
@@ -52,7 +53,8 @@ private:
 	uint32_t distanceExitSpeed; // Скорость на выходе из дистанции
 	uint32_t getResultTimeForDistance(uint16_t checkDistance);/*Получить дорасчетное время замера расстояния*/
 public:
-	bool checkPassageDistance(bool altitud);/*проверяем переход через замеряемые величины расстояния*/
+
+	bool checkDistanceThrough(bool altitud);/*проверяем переход через замеряемые величины расстояния*/
 	Distance();
 	virtual ~Distance();
 };

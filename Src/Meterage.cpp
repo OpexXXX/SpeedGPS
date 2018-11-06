@@ -9,7 +9,7 @@
 
 namespace Met {
 
-Meterage::Meterage(MeasHadler::gpsMessage startPoint) {
+Meterage::Meterage(Meas::gpsMessage startPoint) {
 	// TODO Автоматически созданная заглушка конструктора
 
 }
@@ -21,24 +21,40 @@ Meterage::~Meterage() {
 double Meterage::getDistanceFromStart(bool altitud) {
 } /*Получить растояние от стартовой точки*/
 
+uint32_t Meterage::getDifTime(uint32_t startTime, uint32_t stopTime) {
+	uint64_t result = 0;
+	int64_t hour = 0;
+	int64_t minute = 0;
+	int64_t seconds = 0;
+//150012300
+	int64_t difHour = (stopTime / 10000000) - (startTime / 10000000);
 
+	int64_t difMinute = (stopTime / 100000) % 100 + difHour * 60
+			- (startTime / 100000) % 100;
+
+	int64_t difSecons = (stopTime % 100000) + difMinute * 60000
+			- (startTime % 100000);
+
+	result = difSecons;
+	return result;
+
+}
 
 uint32_t Speed::checkSpeedThrough(bool altitud) {
 } // Переход через измеряемую скорость
-uint32_t Distance::checkDistanceThrough(bool altitud) {
-}/*проверяем переход через замеряемые величины расстояния*/
+
 
 /*Получить дорасчетное время замера расстояния*/
-uint32_t Meterage::getResultTimeForDistance(uint16_t checkDistance) {
+uint32_t Distance::getResultTimeForDistance(uint16_t checkDistance) {
 
-	double curr_distance = getDistance(&startPoint,&(MeasHadler::gpsData), false);
-	double prev_distance = getDistance(&startPoint,&MeasHadler::messageArray[3], 0);
+	double curr_distance = getDistance(startPoint,Meas::Hadler::getCurrentGPS(), false);
+	double prev_distance = getDistance(startPoint,Meas::Hadler::getPrevousGPS(), false);
 
-	uint32_t resultTime = getDifTime(measStrukt->StartMeas.Time,
-			measStrukt->messageArray[3].Time);
+	uint32_t resultTime = getDifTime(startPoint.Time,
+			(Meas::Hadler::getPrevousGPS()).Time);
 	float koef = 1 - ((curr_distance - 402) / (curr_distance - prev_distance));
-	uint32_t difTime = (getDifTime(measStrukt->messageArray[3].Time,
-			measStrukt->gpsData.Time)) * koef;
+	uint32_t difTime = (getDifTime(Meas::Hadler::getPrevousGPS().Time,
+			Meas::Hadler::getCurrentGPS().Time)) * koef;
 
 	resultTime += difTime;
 	return (resultTime);
@@ -46,14 +62,14 @@ uint32_t Meterage::getResultTimeForDistance(uint16_t checkDistance) {
 
 /*Получить растояние между точками*/
 
-double getDistance(MeasHadler::gpsMessage *firstCoor,
-		MeasHadler::gpsMessage *SecondCoor, bool altitud) {
+double getDistance(Meas::gpsMessage firstCoor,
+		Meas::gpsMessage SecondCoor, bool altitud) {
 	/*//Radians = (dd.ff)*pi/180*/
-	double lat_1 = firstCoor->SLatitude * (M_PI / 180);
-	double lat_2 = SecondCoor->SLatitude * (M_PI / 180);
-	double d_lon = SecondCoor->SLongitude * (M_PI / 180)
-			- firstCoor->SLongitude * (M_PI / 180);
-	double d_alt = firstCoor->altitude - SecondCoor->altitude;
+	double lat_1 = firstCoor.SLatitude * (M_PI / 180);
+	double lat_2 = SecondCoor.SLatitude * (M_PI / 180);
+	double d_lon = SecondCoor.SLongitude * (M_PI / 180)
+			- firstCoor.SLongitude * (M_PI / 180);
+	double d_alt = firstCoor.altitude - SecondCoor.altitude;
 	double angl = atan(
 			(sqrt(
 					pow(cos(lat_2) * sin(d_lon), 2)
@@ -73,29 +89,30 @@ double getDistance(MeasHadler::gpsMessage *firstCoor,
 }
 
 /*проверка на прохождение расстояния*/
-bool Distance::checkPassageDistance(bool altitud=false) {
+bool Distance::checkDistanceThrough(bool altitud=false) {
 	/*Details:{Time = 205557900, SLatitude = 53.1645126, NS = "N\0", SLongitude = 92.2391434, altitude = 0, EW = "E\0", CourseTrue = 0, Speed = 766}
 	 По умолчанию:{...}
 	 De*/
-	double curr_distance = getDistance(&startPoint,&(MeasHadler::gpsData), altitud);
-	double prev_distance = getDistance(&startPoint,&(MeasHadler::messageArray[3]), altitud);
+	double curr_distance = getDistance(startPoint,Meas::Hadler::getCurrentGPS(), altitud);
+	double prev_distance = getDistance(startPoint,Meas::Hadler::getPrevousGPS(), altitud);
 
 	if (curr_distance > checkDist && prev_distance < checkDist) {
-		return (1);
+		return (true);
 	} else {
-		return (0);
+		return (false);
 	}
 }
 
 /*//Получить дорасчетное время замера ускорения*/
 uint32_t Speed::getResultTimeForSpeed(uint16_t speed) {
-	uint32_t resultTime = getDifTime(measStrukt->StartMeas.Time,measStrukt->messageArray[3].Time);
-	float gpsDataSpeedF = measStrukt->gpsData.Speed;
-	float messageArraySpeedF = measStrukt->messageArray[3].Speed;
+
+	uint32_t resultTime = getDifTime(startPoint.Time,Meas::Hadler::getPrevousGPS().Time);
+	float gpsDataSpeedF = Meas::Hadler::getCurrentGPS().Speed;
+	float messageArraySpeedF = Meas::Hadler::getPrevousGPS().Speed;
 	float koef = 1
 			- ((gpsDataSpeedF - speed) / (gpsDataSpeedF - messageArraySpeedF));
-	uint32_t difTime = (getDifTime(measStrukt->messageArray[3].Time,
-			measStrukt->gpsData.Time)) * koef;
+	uint32_t difTime = (getDifTime(Meas::Hadler::getPrevousGPS().Time,
+			Meas::Hadler::getCurrentGPS().Time)) * koef;
 	resultTime += difTime;
 	return (resultTime);
 }

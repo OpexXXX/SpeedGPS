@@ -7,21 +7,36 @@
 
 #include "MeasHadler.h"
 
-namespace MeasHadler {
+namespace Meas {
 
+Hadler::Hadler() {
+	// TODO Автоматически созданная заглушка конструктора
 
-/* namespace Measurment */
+}
+
+Hadler::~Hadler() {
+	// TODO !CodeTemplates.destructorstub.tododesc!
+}
+void Hadler::Buffer(gpsMessage gpsD) //Сдвиг буфера
+		{
+	for (uint8_t var = 0; var < 4; ++var) {
+		messageArray[var] = messageArray[var + 1];
+	}
+	messageArray[4] = gpsD;
+	gpsData = gpsD;
+}
+
 
 /*Обработать пакет*/
-void processPackage(gpsMessage gpsData) {
+void Hadler::processPackage(gpsMessage gpsD) {
 	/*//Сдвигаем буфер с замерами*/
-	moveBuffer(gpsData);
+	Hadler::Buffer(gpsD);
 	/*// Берем среднюю скорость пяти замеров*/
 	getAvgSpeed();
 	checkViecleStatus();
 }
 
-void checkViecleStatus() {
+void Hadler::checkViecleStatus() {
 	/*//Проверка на Остановку автомобиля, обнуление замеров, если 5 замеров отсутствует курс и скорость ниже 1 км/ч*/
 	uint8_t flagRes = 0;
 	/*//прогоняем все пять замеров*/
@@ -50,7 +65,7 @@ void checkViecleStatus() {
 }
 
 /*//Старт для замера торможения*/
-uint32_t checkForStartBreakMeas() {
+uint32_t Hadler::checkForStartBreakMeas() {
 	if (gpsData.Speed < 100000 && messageArray[3].Speed > 100000) {
 		//StartBreakMeas = messageArray[3];
 
@@ -61,7 +76,7 @@ uint32_t checkForStartBreakMeas() {
 	return 0;
 }
 
-void getAvgSpeed() //Получить среднюю скорость
+void Hadler::getAvgSpeed() //Получить среднюю скорость
 {
 	uint32_t sumSpeed = 0;
 	for (int i = 0; i < 5; ++i) {
@@ -70,13 +85,13 @@ void getAvgSpeed() //Получить среднюю скорость
 	AvgSpeed = sumSpeed / 5;
 }
 
-void moveBuffer(MeasHadler::gpsMessage gpsD) //Сдвиг буфера
-		{
-	for (uint8_t var = 0; var < 4; ++var) {
-		messageArray[var] = messageArray[var + 1];
-	}
-	messageArray[4] = gpsD;
-	gpsData = gpsD;
+gpsMessage Hadler::getCurrentGPS() //Получить среднюю скорость
+{
+	return gpsData;
+}
+gpsMessage Hadler::getPrevousGPS() //Получить среднюю скорость
+{
+	return messageArray[3];
 }
 
 }

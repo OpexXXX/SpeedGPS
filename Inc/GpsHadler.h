@@ -59,22 +59,22 @@ public:
 	GpsHadler();
 	gpsMessege getMessege();               //Подготовить посылку
 	GPS_MESSEGE_TYPE charParser(unsigned char);		//Парсер пакета UART
-	char AltitudaMSL[12]; /*//высота*/
-	char SLatitude[16]; /*//Широта*/
-	char SLongitude[12]; /*//Долгота*/
-	char Speed[8]; /*//скорость*/
-	char SatCount[4]; /*//используемых спутников*/
-	char Data[12]; /*//Дата*/
-	char Time[12]; /*//время*/
-	char ViewSat[4];
-	char COGstat[4];
-	char Status[2]; /*//валидность*/
-	char COG[8];
-	char Knot[8];
+
 	virtual
 	~GpsHadler();
 private:
-
+	char AltitudaMSL[12]; /*//высота*/
+		char SLatitude[16]; /*//Широта*/
+		char SLongitude[12]; /*//Долгота*/
+		char Speed[8]; /*//скорость*/
+		char SatCount[4]; /*//используемых спутников*/
+		char Data[12]; /*//Дата*/
+		char Time[12]; /*//время*/
+		char ViewSat[4];
+		char COGstat[4];
+		char Status[2]; /*//валидность*/
+		char COG[8];
+		char Knot[8];
 
 
 	char NS[3];
