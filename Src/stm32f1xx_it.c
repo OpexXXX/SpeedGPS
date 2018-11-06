@@ -37,8 +37,6 @@
 #include "cmsis_os.h"
 
 /* USER CODE BEGIN 0 */
-#include "ledDriver.h"
-#include  "keyboardDriver.h"
 #include  "buzzerDriver.h"
 //#include "gps.h"
 extern osMessageQId gpsSppedCoordsHandle;
@@ -253,7 +251,7 @@ void USART2_IRQHandler(void)
   /* USER CODE BEGIN USART2_IRQn 0 */
 	unsigned char tmp;
 	portBASE_TYPE xStatus;
-		dysplayBufferStruct  SymbolBuffer;
+
 	 if((USART2->SR & USART_SR_RXNE)!=0)
 	  {
 	    tmp = USART2->DR;                   //прочитать принятый байт

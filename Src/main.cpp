@@ -52,7 +52,7 @@
 #include "cmsis_os.h"
 
 /* USER CODE BEGIN Includes */
-#include  "ledDriver.h"
+#include "string.h"
 #include "GpsHadler.h"
 #include "ssd1306.h"
 #include "fonts.h"
@@ -202,7 +202,7 @@ int main(void)
   /* Create the queue(s) */
   /* definition and creation of DysplayQueue01 */
 /* what about the sizeof here??? cd native code */
-  osMessageQDef(DysplayQueue01, 2, dysplayBufferStruct);
+  osMessageQDef(DysplayQueue01, 2, uint32_t);
   DysplayQueue01Handle = osMessageCreate(osMessageQ(DysplayQueue01), NULL);
 
   /* definition and creation of UsartTXQueue04 */
@@ -222,7 +222,7 @@ int main(void)
 
   /* definition and creation of DyspalyQueueAfter */
 /* what about the sizeof here??? cd native code */
-  osMessageQDef(DyspalyQueueAfter, 8, dysplayBufferStruct);
+  osMessageQDef(DyspalyQueueAfter, 8, uint32_t);
   DyspalyQueueAfterHandle = osMessageCreate(osMessageQ(DyspalyQueueAfter), NULL);
 
   /* USER CODE BEGIN RTOS_QUEUES */
@@ -540,7 +540,7 @@ void StartDynamicLedDrive(void const * argument)
   /* USER CODE BEGIN StartDynamicLedDrive */
 
   /*//Обработка динамической индикации*/
-  dysplayBufferStruct SymbolBuffer;
+
   /* Infinite loop */
   for (;;)
     {
@@ -574,7 +574,6 @@ void UsartStartTask05(void const * argument)
 * @retval None
 */
 /* USER CODE END Header_GpsTask */
-// Converts a floating point number to string.
 
 void GpsTask(void const * argument)
 {
@@ -590,8 +589,8 @@ void GpsTask(void const * argument)
 
    HAL_Delay(1000);
 
-   ssd1306_SetCursor(23,23);
-   ssd1306_WriteString("4ilo",Font_11x18,White);
+   ssd1306_SetCursor(2,23);
+   ssd1306_WriteString("Search GPS",Font_11x18,White);
 
    ssd1306_UpdateScreen();
 
@@ -608,8 +607,51 @@ void GpsTask(void const * argument)
     	 switch (gpsParser.charParser(gpsUartData)) {
 			case Gps::GPS_NRMC:
 			{
+
 				message = gpsParser.getMessege();
 				xStatus = xQueueSendToBack(GPSHandlerHandle, &message, 0);
+				  ssd1306_Fill(Black);
+
+
+				  char ress[20];
+				  sprintf(ress, "%d", (message.Speed/1000));
+
+				  uint8_t lenS = strlen(ress);
+				  ssd1306_SetCursor(92-(lenS*16),10);
+				  ssd1306_WriteString( ress,Font_16x26,White);
+				  ssd1306_SetCursor(92,8);
+
+				  sprintf(ress, "%d", (message.Speed%1000));
+
+				 ssd1306_WriteChar(ress[0],Font_11x18,White);
+				  ssd1306_SetCursor(92,24);
+				  ssd1306_WriteString("km/ch",Font_7x10,White);
+
+				  ssd1306_SetCursor(60,38);
+				  ssd1306_WriteString("18.6",Font_11x18,White);
+				  ssd1306_SetCursor(104,45);
+				 ssd1306_WriteString("cek",Font_7x10,White);
+
+				  ssd1306_SetCursor(5,0);
+				  ssd1306_WriteString("2.2",Font_7x10,White);
+				  ssd1306_SetCursor(5,11);
+				  ssd1306_WriteString("4.6",Font_7x10,White);
+				  ssd1306_SetCursor(5,22);
+				  ssd1306_WriteString("6.7",Font_7x10,White);
+				  ssd1306_SetCursor(5,33);
+				  ssd1306_WriteString("10.3",Font_7x10,White);
+				  ssd1306_SetCursor(5,44);
+				 ssd1306_WriteString(gpsParser.Status,Font_7x10,White);
+				 ssd1306_WriteString(gpsParser.Speed,Font_7x10,White);
+
+
+				 for (uint8_t var = 0; var < 128; ++var) {
+					 ssd1306_DrawPixel(2,var,White);
+				}
+				 for (uint8_t var = 0; var < 128; ++var) {
+									 ssd1306_DrawPixel(3,var,White);
+								}
+				   ssd1306_UpdateScreen();
 			}
 
 			break;
@@ -631,18 +673,10 @@ void GpsTask(void const * argument)
 void GPSHadlerFunc(void const * argument)
 {
   /* USER CODE BEGIN GPSHadlerFunc */
-
   /* Infinite loop */
   portBASE_TYPE xStatus;
-
  Gps::gpsMessege gpsData;
-
-
   uint8_t counter = 0;
-
-
-
-
 
   for (;;)
     {
@@ -669,19 +703,14 @@ void GPSHadlerFunc(void const * argument)
 void DysplayTaskFunc(void const * argument)
 {
   /* USER CODE BEGIN DysplayTaskFunc */
-  dysplayBufferStruct SymbolBuffer;
-  portBASE_TYPE xStatus;
+
+
   /* Infinite loop */
   for (;;)
     {
 	  HAL_Delay(1000);
-      xStatus = xQueueReceive(DyspalyQueueAfterHandle, &SymbolBuffer, 1);
-      if (xStatus == pdPASS)
-	{
-	  xStatus = xQueueSendToBack(DysplayQueue01Handle, &SymbolBuffer, 5);
-	  if (SymbolBuffer.ShowDelay != 0)
-	    osDelay (SymbolBuffer.ShowDelay);
-	}
+
+
     }
   /* USER CODE END DysplayTaskFunc */
 }

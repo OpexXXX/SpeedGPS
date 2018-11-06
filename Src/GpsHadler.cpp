@@ -6,7 +6,7 @@
  */
 
 #include "GpsHadler.h"
-
+#include "string.h"
 namespace Gps {
 
 GpsHadler::GpsHadler() :
@@ -171,7 +171,7 @@ GPS_MESSEGE_TYPE GpsHadler::charParser(unsigned char data) {
 //Конвертация String в float, возвращает число , "151.6654684" -> 151.6654684*/
 float stringToFloat(char *string) {
 	float result = 0.0;
-	int len = 2; //2 strlen(string);
+	int len = strlen(string);
 	int dotPosition = 0;
 
 	for (int i = 0; i < len; i++) {
@@ -286,5 +286,7 @@ uint32_t asciiRemoveDotToInt(char* s)
 	}
 	return (n);
 }
+/*//Конвертация Int в String, возвращает число без точки */
+
 
 } /* namespace Gps */
